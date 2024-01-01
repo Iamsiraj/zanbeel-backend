@@ -1,4 +1,4 @@
-package com.example.DummyService;
+package com.zanbeel.DummyService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

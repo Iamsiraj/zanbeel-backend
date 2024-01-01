@@ -1,11 +1,11 @@
-package com.example.DummyService.service.impl;
+package com.zanbeel.DummyService.service.impl;
 
 
-import com.example.DummyService.enums.DummyMessage;
-import com.example.DummyService.model.dto.request.AddDummyRequestDto;
-import com.example.DummyService.model.entity.Dummy;
-import com.example.DummyService.repository.DummyRepository;
-import com.example.DummyService.service.DummyService;
+import com.zanbeel.DummyService.enums.DummyMessage;
+import com.zanbeel.DummyService.model.dto.request.AddDummyRequestDto;
+import com.zanbeel.DummyService.model.entity.Dummy;
+import com.zanbeel.DummyService.repository.DummyRepository;
+import com.zanbeel.DummyService.service.DummyService;
 
 import com.zanbeel.customUtility.exception.ServiceException;
 import com.zanbeel.customUtility.model.CustomResponseEntity;

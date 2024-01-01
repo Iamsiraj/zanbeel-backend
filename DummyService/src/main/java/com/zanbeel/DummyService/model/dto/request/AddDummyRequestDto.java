@@ -1,4 +1,4 @@
-package com.example.DummyService.model.dto.request;
+package com.zanbeel.DummyService.model.dto.request;
 
 import lombok.*;
 

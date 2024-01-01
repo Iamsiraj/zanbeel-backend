@@ -1,9 +1,9 @@
-    package com.example.DummyService.controller;
+    package com.zanbeel.DummyService.controller;
 
 
-    import com.example.DummyService.model.dto.request.AddDummyRequestDto;
-    import com.example.DummyService.model.entity.Dummy;
-    import com.example.DummyService.service.DummyService;
+    import com.zanbeel.DummyService.model.dto.request.AddDummyRequestDto;
+    import com.zanbeel.DummyService.model.entity.Dummy;
+    import com.zanbeel.DummyService.service.DummyService;
     import com.zanbeel.customUtility.exception.GlobalExceptionHandler;
     import com.zanbeel.customUtility.model.CustomResponseEntity;
     import org.springframework.beans.factory.annotation.Autowired;

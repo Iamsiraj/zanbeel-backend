@@ -1,9 +1,9 @@
-package com.example.DummyService.service;
+package com.zanbeel.DummyService.service;
 
 
 import com.zanbeel.customUtility.model.CustomResponseEntity;
-import com.example.DummyService.model.dto.request.AddDummyRequestDto;
-import com.example.DummyService.model.entity.Dummy;
+import com.zanbeel.DummyService.model.dto.request.AddDummyRequestDto;
+import com.zanbeel.DummyService.model.entity.Dummy;
 
 import java.util.List;
 

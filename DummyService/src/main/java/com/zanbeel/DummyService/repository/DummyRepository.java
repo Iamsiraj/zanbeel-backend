@@ -1,6 +1,6 @@
-package com.example.DummyService.repository;
+package com.zanbeel.DummyService.repository;
 
-import com.example.DummyService.model.entity.Dummy;
+import com.zanbeel.DummyService.model.entity.Dummy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.example.DummyService.enums;
+package com.zanbeel.DummyService.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

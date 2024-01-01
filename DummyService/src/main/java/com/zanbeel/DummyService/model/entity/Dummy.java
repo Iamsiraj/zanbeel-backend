@@ -1,4 +1,4 @@
-package com.example.DummyService.model.entity;
+package com.zanbeel.DummyService.model.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
