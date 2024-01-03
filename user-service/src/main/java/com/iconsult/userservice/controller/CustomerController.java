@@ -7,6 +7,7 @@ import com.iconsult.userservice.model.dto.response.ResponseDTO;
 import com.iconsult.userservice.model.entity.Customer;
 import com.iconsult.userservice.service.Impl.CustomerServiceImpl;
 import com.iconsult.userservice.service.Impl.OTPLogImpl;
+import com.zanbeel.customUtility.model.CustomResponseEntity;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/v1/customer")
 public class CustomerController
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomerController.class);
@@ -37,27 +38,32 @@ public class CustomerController
     }
 
     @PostMapping("/signup")
-    public ResponseDTO register(@Valid @RequestBody CustomerDto customerDto)
+    public CustomResponseEntity<ResponseDTO> register(@Valid @RequestBody CustomerDto customerDto)
     {
         return this.customerServiceImpl.register(customerDto);
     }
 
     @PostMapping("/createOTP")
-    public ResponseDTO createOTP(@Valid @RequestBody OTPDto OTPDto)
+    public CustomResponseEntity<ResponseDTO> createOTP(@Valid @RequestBody OTPDto OTPDto)
     {
         return this.otpLogImpl.createOTP(OTPDto);
     }
 
     @PostMapping("/verifyOTP")
-    public ResponseDTO verifyOTP(@Valid @RequestBody OTPDto OTPDto)
+    public CustomResponseEntity<ResponseDTO> verifyOTP(@Valid @RequestBody OTPDto OTPDto)
     {
         return this.otpLogImpl.verifyOTP(OTPDto);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseDTO> login(@Valid @RequestBody LoginDto loginDto)
+    public CustomResponseEntity<ResponseDTO> login(@Valid @RequestBody LoginDto loginDto)
     {
-        ResponseDTO response =  customerServiceImpl.login(loginDto);
-        return new ResponseEntity<>(response, HttpStatus.FOUND);
+        return customerServiceImpl.login(loginDto);
+    }
+
+    @GetMapping("/{id}")
+    public CustomResponseEntity<Customer> findById(@PathVariable Long id)
+    {
+        return customerServiceImpl.findById(id);
     }
 }

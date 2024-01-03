@@ -8,6 +8,7 @@ import com.iconsult.userservice.model.entity.Customer;
 import com.iconsult.userservice.model.entity.OTPLog;
 import com.iconsult.userservice.repository.OTPLogRepository;
 import com.iconsult.userservice.service.OTPLogSerivce;
+import com.zanbeel.customUtility.model.CustomResponseEntity;
 import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ public class OTPLogImpl implements OTPLogSerivce {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OTPLogImpl.class);
 
-    private ResponseDTO response;
+    private CustomResponseEntity<ResponseDTO> response;
 
     @Autowired
     private OTPLogRepository otpLogRepository;
@@ -44,7 +45,7 @@ public class OTPLogImpl implements OTPLogSerivce {
     }
 
     @Override
-    public ResponseDTO createOTP(OTPDto OTPDto)
+    public CustomResponseEntity<ResponseDTO> createOTP(OTPDto OTPDto)
     {
         LOGGER.info("Executing createOTP Request...");
 
@@ -73,7 +74,7 @@ public class OTPLogImpl implements OTPLogSerivce {
     }
 
     @Override
-    public ResponseDTO verifyOTP(OTPDto verifyOTPDto)
+    public CustomResponseEntity<ResponseDTO> verifyOTP(OTPDto verifyOTPDto)
     {
         LOGGER.info("Executing confirmOTP Request...");
 
@@ -93,21 +94,21 @@ public class OTPLogImpl implements OTPLogSerivce {
                         if(save(otp).getId() != null)
                         {
                             LOGGER.info("OTP verified successfully for customer [{}], replying...", verifyOTPDto.getMobileNumber());
-                            response = new ResponseDTO("Success", 200);
+                            response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
                             return response;
                         }
                     }
                     else
                     {
                         LOGGER.info("OTP does been match for customer [{}], replying...", verifyOTPDto.getMobileNumber());
-                        response = new ResponseDTO("Failed", 101);
+                        response = new CustomResponseEntity<>(new ResponseDTO("Failed", 200), null);
                         return response;
                     }
                 }
                 else
                 {
                     LOGGER.info("OTP has been expired for customer [{}], replying...", verifyOTPDto.getMobileNumber());
-                    response = new ResponseDTO("OTP has been expired for customer [" + verifyOTPDto.getMobileNumber() + "]", 101);
+                    response = new CustomResponseEntity<>(new ResponseDTO("OTP has been expired for customer [" + verifyOTPDto.getMobileNumber() + "]", 101), null);
                     return response;
                 }
             }
@@ -133,8 +134,8 @@ public class OTPLogImpl implements OTPLogSerivce {
         otpLog.setExpiryDateTime(Long.parseLong(Util.dateFormat.format(DateUtils.addMinutes(new Date(), 1))));
         otpLog.setSmsMessage("Dear Customer, your OTP to complete your request is " + otp);
 
-        response = new ResponseDTO("Success", 200);
-        response.addField("OTP", otp);
+        response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
+        response.getData().addField("OTP", otp);
 
         if(save(otpLog).getId() != null)
         {
