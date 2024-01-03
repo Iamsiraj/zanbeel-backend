@@ -4,6 +4,11 @@ server:
 
 # Database configuration
 spring:
+  kafka:
+    producer:
+      bootstrap-servers: 192.168.0.164:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
   application:
     name: USER-SERVICE
   datasource:
@@ -22,8 +27,3 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: true
-#  kafka:
-#    producer:
-#      bootstrap-servers: 192.168.0.150:9092
-#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-#      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

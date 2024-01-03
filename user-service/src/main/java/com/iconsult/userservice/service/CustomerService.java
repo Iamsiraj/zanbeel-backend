@@ -3,6 +3,7 @@ package com.iconsult.userservice.service;
 
 
 import com.iconsult.userservice.model.dto.request.CustomerDto;
+import com.iconsult.userservice.model.dto.request.ForgetUsernameDto;
 import com.iconsult.userservice.model.dto.request.LoginDto;
 import com.iconsult.userservice.model.dto.request.OTPDto;
 import com.iconsult.userservice.model.dto.response.ResponseDTO;
@@ -28,4 +29,6 @@ public interface CustomerService
     Customer save(Customer customer);
 
     CustomResponseEntity<Customer> findById(Long id);
+
+    CustomResponseEntity<ResponseDTO> forgetUserName(ForgetUsernameDto forgetUsernameDto);
 }

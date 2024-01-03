@@ -1,6 +1,7 @@
 package com.iconsult.userservice.controller;
 
 import com.iconsult.userservice.model.dto.request.CustomerDto;
+import com.iconsult.userservice.model.dto.request.ForgetUsernameDto;
 import com.iconsult.userservice.model.dto.request.OTPDto;
 import com.iconsult.userservice.model.dto.request.LoginDto;
 import com.iconsult.userservice.model.dto.response.ResponseDTO;
@@ -59,6 +60,12 @@ public class CustomerController
     public CustomResponseEntity<ResponseDTO> login(@Valid @RequestBody LoginDto loginDto)
     {
         return customerServiceImpl.login(loginDto);
+    }
+
+    @PostMapping("/forgetUserName")
+    public CustomResponseEntity<ResponseDTO> forgotUserName(@Valid @RequestBody ForgetUsernameDto forgetUsernameDto)
+    {
+        return customerServiceImpl.forgetUserName(forgetUsernameDto);
     }
 
     @GetMapping("/{id}")
