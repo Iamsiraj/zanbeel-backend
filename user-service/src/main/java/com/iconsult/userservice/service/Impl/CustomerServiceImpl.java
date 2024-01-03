@@ -11,6 +11,7 @@ import com.iconsult.userservice.service.CustomerService;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import com.zanbeel.customUtility.model.CustomResponseEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import javax.net.ssl.*;
 import javax.ws.rs.core.MediaType;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CustomerServiceImpl implements CustomerService
@@ -29,7 +31,7 @@ public class CustomerServiceImpl implements CustomerService
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
     private final String URL = "http://iconsult-21:8081/account/verifyAccount?cnic=%s&accountNumber=%s";
-    private ResponseDTO response;
+    private CustomResponseEntity<ResponseDTO> response;
     @Autowired
     private CustomerRepository customerRepository;
 
@@ -37,7 +39,7 @@ public class CustomerServiceImpl implements CustomerService
     private CustomerMapperImpl customerMapperImpl;
 
     @Override
-    public ResponseDTO register(CustomerDto customerDto)
+    public CustomResponseEntity<ResponseDTO> register(CustomerDto customerDto)
     {
         LOGGER.info("Sign up Request received");
 
@@ -69,21 +71,21 @@ public class CustomerServiceImpl implements CustomerService
 
         LOGGER.info("Customer has been saved with Id {}", customer.getId());
 
-        response = new ResponseDTO("Success", 201);
-        response.addField("mobileNumber", customer.getMobileNumber());
+        response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
+        response.getData().addField("mobileNumber", customer.getMobileNumber());
 
         return new ResponseEntity<>(response, HttpStatus.CREATED).getBody();
     }
 
     @Override
-    public ResponseDTO login(LoginDto loginDto)
+    public CustomResponseEntity<ResponseDTO> login(LoginDto loginDto)
     {
         Customer customer = customerRepository.findByEmail(loginDto.getEmail());
         if(customer != null)
         {
             if(customer.getEmail().equals(loginDto.getEmail()) && customer.getPassword().equals(loginDto.getPassword()))
             {
-                response = new ResponseDTO("Success", 200);
+                response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
                 return response;
             }
             else
@@ -115,6 +117,15 @@ public class CustomerServiceImpl implements CustomerService
     public Customer save(Customer customer)
     {
         return customerRepository.save(customer);
+    }
+
+    @Override
+    public CustomResponseEntity<Customer> findById(Long id) {
+        Optional<Customer> student = this.customerRepository.findById(id);
+        if (!student.isPresent()) {
+            throw new ServiceException("Customer Not Found");
+        }
+        return CustomResponseEntity.<Customer>builder().data(student.get()).build();
     }
 
     @Override
