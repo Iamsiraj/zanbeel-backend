@@ -4,6 +4,7 @@ import com.iconsult.userservice.exception.ServiceException;
 import com.iconsult.userservice.model.dto.request.CustomerDto;
 import com.iconsult.userservice.model.dto.request.ForgetUsernameDto;
 import com.iconsult.userservice.model.dto.request.LoginDto;
+import com.iconsult.userservice.model.dto.response.KafkaMessageDto;
 import com.iconsult.userservice.model.dto.response.ResponseDTO;
 import com.iconsult.userservice.model.entity.Customer;
 import com.iconsult.userservice.model.mapper.CustomerMapperImpl;
@@ -35,6 +36,8 @@ public class CustomerServiceImpl implements CustomerService
     private final String URL = "http://iconsult-21:8081/account/verifyAccount?cnic=%s&accountNumber=%s";
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
+
+    private KafkaMessageDto kafkaMessage;
     private CustomResponseEntity<ResponseDTO> response;
     @Autowired
     private CustomerRepository customerRepository;
@@ -143,8 +146,8 @@ public class CustomerServiceImpl implements CustomerService
         {
             LOGGER.info("Customer found with Email Address [{}], sending username on email...", forgetUsernameDto.getEmail());
             // Kafka email send here
-            forgetUsernameDto.setUserName(customer.getUserName());
-            this.kafkaTemplate.send("forgetUserName", forgetUsernameDto);
+            kafkaMessage = new KafkaMessageDto(forgetUsernameDto.getEmail(), "Forget Username", "Dear Customer, your username is " + customer.getUserName(), true, false);
+            this.kafkaTemplate.send("forgetUserName", kafkaMessage);
 
             LOGGER.info("Email sent [{}]", forgetUsernameDto.getEmail());
             response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
@@ -157,10 +160,10 @@ public class CustomerServiceImpl implements CustomerService
 
         if(customer != null)
         {
-            LOGGER.info("Customer found with Mobile Number [{}], sending username on email...", forgetUsernameDto.getMobileNumber());
+            LOGGER.info("Customer found with Mobile Number [{}], sending username on SMS...", forgetUsernameDto.getMobileNumber());
             // Kafka SMS send here
-            forgetUsernameDto.setUserName(customer.getUserName());
-            this.kafkaTemplate.send("forgetUserName", forgetUsernameDto);
+            kafkaMessage = new KafkaMessageDto(forgetUsernameDto.getMobileNumber(), "UserName", "Dear Customer, your username is " + customer.getUserName(), false, true);
+            this.kafkaTemplate.send("forgetUserName", kafkaMessage);
 
             LOGGER.info("SMS sent [{}]", forgetUsernameDto.getMobileNumber());
             response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
