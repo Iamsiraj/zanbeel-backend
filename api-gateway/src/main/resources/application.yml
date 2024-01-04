@@ -12,7 +12,11 @@ spring:
         - id: USER-SERVICE
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/v1/customer/**
+              - Path=/v1/customer/**
+        - id: BENEFICIARY-SERVICE
+          uri: lb://BENEFICIARY-SERVICE
+          predicates:
+              - Path=/v1/beneficiary/**
 
 eureka:
   client:
