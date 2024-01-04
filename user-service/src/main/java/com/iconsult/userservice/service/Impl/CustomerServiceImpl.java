@@ -115,13 +115,13 @@ public class CustomerServiceImpl implements CustomerService
     }
 
     @Override
-    public CustomResponseEntity<Boolean> verifyCNIC(String cnic, String accountNumber)
+    public CustomResponseEntity<Boolean> verifyCNIC(String cnic)
     {
         LOGGER.info("Verify CNIC request received");
 
-        if(!accountExist(cnic, accountNumber))
+        if(!accountExist(cnic))
         {
-            LOGGER.error("Customer account does not exist [" + accountNumber + "], cannot allow signup, rejecting...");
+            LOGGER.error("Customer account does not exist [" + cnic + "], cannot allow signup, rejecting...");
             return CustomResponseEntity.<Boolean>builder().data(false).build();
         }
         return CustomResponseEntity.<Boolean>builder().data(true).build();
@@ -237,7 +237,7 @@ public class CustomerServiceImpl implements CustomerService
         return ResponseEntity.ok(updateCustomer).getBody();
     }
 
-    private Boolean accountExist(String cnic, String accountNumber)
+    private Boolean accountExist(String cnic)
     {
         Client client = Client.create();
         client.setConnectTimeout(5 * 1000);

@@ -34,5 +34,5 @@ public interface CustomerService
 
     CustomResponseEntity<ResponseDTO> forgetUserName(ForgetUsernameDto forgetUsernameDto);
 
-    CustomResponseEntity<Boolean> verifyCNIC(String cnic, String accountNumber);
+    CustomResponseEntity<Boolean> verifyCNIC(String cnic);
 }

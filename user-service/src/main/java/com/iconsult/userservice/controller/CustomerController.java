@@ -57,9 +57,9 @@ public class CustomerController
     }
 
     @GetMapping("/verifyCNIC")
-    public CustomResponseEntity<Boolean> verifyCNIC(@RequestParam String cnic, @RequestParam String accountNumber)
+    public CustomResponseEntity<Boolean> verifyCNIC(@RequestParam String cnic)
     {
-        return this.customerServiceImpl.verifyCNIC(cnic, accountNumber);
+        return this.customerServiceImpl.verifyCNIC(cnic);
     }
 
     @PostMapping("/login")
