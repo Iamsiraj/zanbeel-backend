@@ -4,6 +4,7 @@ import com.iconsult.userservice.exception.ServiceException;
 import com.iconsult.userservice.model.dto.request.CustomerDto;
 import com.iconsult.userservice.model.dto.request.ForgetUsernameDto;
 import com.iconsult.userservice.model.dto.request.LoginDto;
+import com.iconsult.userservice.model.dto.response.AccountDto;
 import com.iconsult.userservice.model.dto.response.KafkaMessageDto;
 import com.iconsult.userservice.model.dto.response.ResponseDTO;
 import com.iconsult.userservice.model.entity.Customer;
@@ -12,6 +13,7 @@ import com.iconsult.userservice.repository.CustomerRepository;
 import com.iconsult.userservice.service.CustomerService;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.WebResource;
 import com.zanbeel.customUtility.model.CustomResponseEntity;
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
 import javax.net.ssl.*;
@@ -27,17 +30,19 @@ import javax.ws.rs.core.MediaType;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class CustomerServiceImpl implements CustomerService
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
-    private final String URL = "http://iconsult-21:8081/account/verifyAccount?cnic=%s&accountNumber=%s";
+    private final String URL = "http://iconsult-21:8081/account/getAccounts?cnicNumber=%s";
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     private KafkaMessageDto kafkaMessage;
+
     private CustomResponseEntity<ResponseDTO> response;
     @Autowired
     private CustomerRepository customerRepository;
@@ -50,13 +55,7 @@ public class CustomerServiceImpl implements CustomerService
     {
         LOGGER.info("Sign up Request received");
 
-        if(!accountExist(customerDto))
-        {
-            LOGGER.error("Customer account does not exist [" + customerDto.getAccountNumber() + "], cannot allow signup, rejecting...");
-            throw new ServiceException(String.format("Customer account does not exist [%s]", customerDto.getAccountNumber()));
-        }
-
-        // Duplicate Customer Check
+        // Duplicate Customer Check mobile number
         Customer customerDuplicate = findByMobileNumber(customerDto.getMobileNumber());
 
         if(customerDuplicate != null)
@@ -65,13 +64,24 @@ public class CustomerServiceImpl implements CustomerService
             throw new ServiceException(String.format("Customer with Mobile Number %s already exists", customerDto.getMobileNumber()));
         }
 
-        // Duplicate Customer Check
-        customerDuplicate = findByEmailAddress(customerDto.getEmail());
+        // Duplicate Customer Check if email is present
+        if(!customerDto.getEmail().isBlank())
+        {
+            customerDuplicate = findByEmailAddress(customerDto.getEmail());
+            if(customerDuplicate != null)
+            {
+                LOGGER.error("Customer already exists with Email [" + customerDto.getEmail() + "], cannot allow signup, rejecting...");
+                throw new ServiceException(String.format("Customer with Email %s already exists", customerDto.getEmail()));
+            }
+        }
+
+        // Duplicate Customer Check username
+        customerDuplicate = findByUserName(customerDto.getUserName());
 
         if(customerDuplicate != null)
         {
-            LOGGER.error("Customer already exists with Email [" + customerDto.getEmail() + "], cannot allow signup, rejecting...");
-            throw new ServiceException(String.format("Customer with Email %s already exists", customerDto.getEmail()));
+            LOGGER.error("Customer already exists with userName [" + customerDto.getUserName() + "], cannot allow signup, rejecting...");
+            throw new ServiceException(String.format("Customer with userName %s already exists", customerDto.getUserName()));
         }
 
         Customer customer = addUser(customerMapperImpl.dtoToJpe(customerDto));
@@ -102,6 +112,19 @@ public class CustomerServiceImpl implements CustomerService
         }
 
         throw new ServiceException("Customer does not exist");
+    }
+
+    @Override
+    public CustomResponseEntity<Boolean> verifyCNIC(String cnic, String accountNumber)
+    {
+        LOGGER.info("Verify CNIC request received");
+
+        if(!accountExist(cnic, accountNumber))
+        {
+            LOGGER.error("Customer account does not exist [" + accountNumber + "], cannot allow signup, rejecting...");
+            return CustomResponseEntity.<Boolean>builder().data(false).build();
+        }
+        return CustomResponseEntity.<Boolean>builder().data(true).build();
     }
 
     @Override
@@ -184,6 +207,11 @@ public class CustomerServiceImpl implements CustomerService
         return this.customerRepository.findByMobileNumber(mobileNumber);
     }
 
+    @Override
+    public Customer findByUserName(String userName) {
+        return this.customerRepository.findByUserName(userName);
+    }
+
     public List<Customer> findAllUsers()
     {
         return this.customerRepository.findAll();
@@ -209,7 +237,7 @@ public class CustomerServiceImpl implements CustomerService
         return ResponseEntity.ok(updateCustomer).getBody();
     }
 
-    private Boolean accountExist(CustomerDto customerDto)
+    private Boolean accountExist(String cnic, String accountNumber)
     {
         Client client = Client.create();
         client.setConnectTimeout(5 * 1000);
@@ -240,7 +268,7 @@ public class CustomerServiceImpl implements CustomerService
             // Install the all-trusting host verifier
             HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
 
-            String url = String.format(URL, customerDto.getCnic(), customerDto.getAccountNumber());
+            String url = String.format(URL, cnic);
             LOGGER.info("Calling URL [" + url + "]");
             webResource = client.resource(url);
 
@@ -250,30 +278,44 @@ public class CustomerServiceImpl implements CustomerService
 
             if(clientResponse != null)
             {
-                if(clientResponse.getStatus() != 200)
+                if(clientResponse.getStatus() != 302)
                 {
                     LOGGER.error("Account Service down, rejecting!!");
                     return false;
                 }
+                List<AccountDto> accountList = clientResponse.getEntity(new GenericType<List<AccountDto>>() {});
 
-                String response = clientResponse.getEntity(String.class);
-
-                if(response != null)
+                if(accountList != null && !accountList.isEmpty())
                 {
-                    LOGGER.info("Account Service response found For Customer [{}], proceeding...", customerDto.getMobileNumber());
-                    return Boolean.parseBoolean(response);
+                    LOGGER.info("Account Service response found For Customer [{}], proceeding...", cnic);
+                    return true;
                 }
             }
             else
             {
-                LOGGER.error("Failed to Get response from Account Service For Customer [{}], rejecting...", customerDto.getMobileNumber());
+                LOGGER.error("Failed to Get response from Account Service For Customer [{}], rejecting...", cnic);
             }
             return false;
         }
         catch (Exception e)
         {
-            LOGGER.error("Failed to Get response from Account Service For Customer [{}], rejecting...", customerDto.getMobileNumber());
+            LOGGER.error("Failed to Get response from Account Service For Customer [{}], rejecting...", cnic);
+            LOGGER.error(e.getMessage());
             return false;
         }
+    }
+
+    public void sendMessage(Object message, String topicName)
+    {
+        CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(topicName, message);
+        future.whenComplete((result, ex) -> {
+            if (ex == null) {
+                LOGGER.info("Sent message=[" + message +
+                        "] with offset=[" + result.getRecordMetadata().offset() + "]");
+            } else {
+                LOGGER.error("Unable to send message=[" +
+                        message + "] due to : " + ex.getMessage());
+            }
+        });
     }
 }

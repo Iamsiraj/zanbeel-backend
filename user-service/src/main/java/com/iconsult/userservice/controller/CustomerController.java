@@ -56,21 +56,27 @@ public class CustomerController
         return this.otpLogImpl.verifyOTP(OTPDto);
     }
 
+    @GetMapping("/verifyCNIC")
+    public CustomResponseEntity<Boolean> verifyCNIC(@RequestParam String cnic, @RequestParam String accountNumber)
+    {
+        return this.customerServiceImpl.verifyCNIC(cnic, accountNumber);
+    }
+
     @PostMapping("/login")
     public CustomResponseEntity<ResponseDTO> login(@Valid @RequestBody LoginDto loginDto)
     {
-        return customerServiceImpl.login(loginDto);
+        return this.customerServiceImpl.login(loginDto);
     }
 
     @PostMapping("/forgetUserName")
     public CustomResponseEntity<ResponseDTO> forgotUserName(@Valid @RequestBody ForgetUsernameDto forgetUsernameDto)
     {
-        return customerServiceImpl.forgetUserName(forgetUsernameDto);
+        return this.customerServiceImpl.forgetUserName(forgetUsernameDto);
     }
 
     @GetMapping("/{id}")
     public CustomResponseEntity<Customer> findById(@PathVariable Long id)
     {
-        return customerServiceImpl.findById(id);
+        return this.customerServiceImpl.findById(id);
     }
 }
