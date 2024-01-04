@@ -12,4 +12,10 @@ public class KafkaConfig {
     {
         return TopicBuilder.name("OTP").build();
     }
+
+    @Bean
+    public NewTopic topicForgetUserName()
+    {
+        return TopicBuilder.name("forgetUserName").build();
+    }
 }
