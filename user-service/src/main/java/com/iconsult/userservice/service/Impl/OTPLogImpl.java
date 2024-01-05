@@ -5,6 +5,7 @@ import com.iconsult.userservice.exception.ServiceException;
 import com.iconsult.userservice.model.dto.request.OTPDto;
 import com.iconsult.userservice.model.dto.response.KafkaMessageDto;
 import com.iconsult.userservice.model.dto.response.ResponseDTO;
+import com.iconsult.userservice.model.entity.AppConfiguration;
 import com.iconsult.userservice.model.entity.Customer;
 import com.iconsult.userservice.model.entity.OTPLog;
 import com.iconsult.userservice.repository.OTPLogRepository;
@@ -34,6 +35,9 @@ public class OTPLogImpl implements OTPLogSerivce {
 
     @Autowired
     private CustomerServiceImpl customerServiceImpl;
+
+    @Autowired
+    private AppConfigurationImpl appConfigurationImpl;
 
     private KafkaMessageDto kafkaMessage;
 
@@ -136,7 +140,8 @@ public class OTPLogImpl implements OTPLogSerivce {
         otpLog.setIsExpired(false);
         otpLog.setIsVerified(false);
         otpLog.setCreateDateTime(Long.parseLong(Util.dateFormat.format(new Date())));
-        otpLog.setExpiryDateTime(Long.parseLong(Util.dateFormat.format(DateUtils.addMinutes(new Date(), 1))));
+        AppConfiguration appConfiguration = this.appConfigurationImpl.findByName("OTP_EXPIRE_TIME"); // fetching otp expire time in minutes
+        otpLog.setExpiryDateTime(Long.parseLong(Util.dateFormat.format(DateUtils.addMinutes(new Date(), Integer.parseInt(appConfiguration.getValue())))));
         otpLog.setSmsMessage("Dear Customer, your OTP to complete your request is " + otp);
 
         response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
