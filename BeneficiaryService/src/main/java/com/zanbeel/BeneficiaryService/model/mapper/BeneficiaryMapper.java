@@ -14,7 +14,8 @@ BeneficiaryMapper {
     BeneficiaryMapper INSTANCE = Mappers.getMapper(BeneficiaryMapper.class);
 
     @Mapping(target = "beneficiaryId", ignore = true)
-    Beneficiary mapBeneficiaryRequestDtoToBeneficiary(BeneficiaryRequestDto beneficiaryRequestDto);
+    @Mapping(target = "isActive", source = "isActive")
+    Beneficiary mapBeneficiaryRequestDtoToBeneficiary(BeneficiaryRequestDto beneficiaryRequestDto, Boolean isActive);
 
     BeneficiaryResponseDto mapBeneficiaryToBeneficiaryResponseDto(Beneficiary beneficiary);
     @Mapping(target = "beneficiaryId", source = "id")
