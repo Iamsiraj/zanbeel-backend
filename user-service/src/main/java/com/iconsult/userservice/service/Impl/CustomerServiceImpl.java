@@ -90,6 +90,7 @@ public class CustomerServiceImpl implements CustomerService
 
         response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
         response.getData().addField("mobileNumber", customer.getMobileNumber());
+        response.getData().addField("customerId", customer.getId());
 
         return new ResponseEntity<>(response, HttpStatus.CREATED).getBody();
     }
@@ -170,7 +171,7 @@ public class CustomerServiceImpl implements CustomerService
             LOGGER.info("Customer found with Email Address [{}], sending username on email...", forgetUsernameDto.getEmail());
             // Kafka email send here
             kafkaMessage = new KafkaMessageDto(forgetUsernameDto.getEmail(), "Forget Username", "Dear Customer, your username is " + customer.getUserName(), true, false);
-            this.kafkaTemplate.send("forgetUserName", kafkaMessage);
+            sendMessage(kafkaMessage, "forgetUserName");
 
             LOGGER.info("Email sent [{}]", forgetUsernameDto.getEmail());
             response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
@@ -186,7 +187,7 @@ public class CustomerServiceImpl implements CustomerService
             LOGGER.info("Customer found with Mobile Number [{}], sending username on SMS...", forgetUsernameDto.getMobileNumber());
             // Kafka SMS send here
             kafkaMessage = new KafkaMessageDto(forgetUsernameDto.getMobileNumber(), "UserName", "Dear Customer, your username is " + customer.getUserName(), false, true);
-            this.kafkaTemplate.send("forgetUserName", kafkaMessage);
+            sendMessage(kafkaMessage, "forgetUserName");
 
             LOGGER.info("SMS sent [{}]", forgetUsernameDto.getMobileNumber());
             response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);

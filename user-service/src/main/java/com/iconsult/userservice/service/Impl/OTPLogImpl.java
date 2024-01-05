@@ -147,7 +147,7 @@ public class OTPLogImpl implements OTPLogSerivce {
             OTPDto.setOtp(otp);
             LOGGER.info("OTP has been saved with Id: {}", otpLog.getId());
             kafkaMessage = new KafkaMessageDto(OTPDto.getEmail(), "OTP", "Dear Customer, your OTP is " + OTPDto.getOtp(), true, false);
-            kafkaTemplate.send("OTP", kafkaMessage);
+            sendMessage(kafkaMessage, "OTP");
             LOGGER.info("OTP Sent Successfully to [{}]", OTPDto.getMobileNumber());
             return true;
         }
@@ -159,7 +159,7 @@ public class OTPLogImpl implements OTPLogSerivce {
         CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(topicName, message);
         future.whenComplete((result, ex) -> {
             if (ex == null) {
-                LOGGER.info("Sent message=[" + message +
+                LOGGER.info("Sent message=[" + message.toString() +
                         "] with offset=[" + result.getRecordMetadata().offset() + "]");
             } else {
                 LOGGER.error("Unable to send message=[" +
