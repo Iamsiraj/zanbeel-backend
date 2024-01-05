@@ -2,6 +2,7 @@ package com.zanbeel.BeneficiaryService.service;
 
 
 import com.zanbeel.BeneficiaryService.model.dto.request.BeneficiaryRequestDto;
+import com.zanbeel.BeneficiaryService.model.dto.request.OtpRequestDto;
 import com.zanbeel.BeneficiaryService.model.dto.request.UpdateBeneficiaryRequestDto;
 import com.zanbeel.BeneficiaryService.model.dto.response.BeneficiaryResponseDto;
 import com.zanbeel.customUtility.model.CustomResponseEntity;
@@ -17,7 +18,7 @@ public interface BeneficiaryService {
 
     CustomResponseEntity<String> deleteBeneficiaryById(Long BeneficiaryId);
 
-    CustomResponseEntity<Beneficiary> addBeneficiary(BeneficiaryRequestDto beneficiaryRequestDto);
+    CustomResponseEntity<OtpRequestDto> addBeneficiary(BeneficiaryRequestDto beneficiaryRequestDto);
 
     CustomResponseEntity<Beneficiary> updateBeneficiary(Long beneficiaryId, UpdateBeneficiaryRequestDto updateBeneficiaryRequestDto);
 }

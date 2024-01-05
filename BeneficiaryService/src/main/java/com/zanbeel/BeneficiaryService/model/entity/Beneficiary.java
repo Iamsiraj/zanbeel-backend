@@ -21,4 +21,5 @@ public class Beneficiary {
     private String title;
     private String accountNumber;
     private String nickName;
+    private Boolean isActive;
 }
