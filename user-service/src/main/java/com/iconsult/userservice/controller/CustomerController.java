@@ -1,9 +1,6 @@
 package com.iconsult.userservice.controller;
 
-import com.iconsult.userservice.model.dto.request.CustomerDto;
-import com.iconsult.userservice.model.dto.request.ForgetUsernameDto;
-import com.iconsult.userservice.model.dto.request.OTPDto;
-import com.iconsult.userservice.model.dto.request.LoginDto;
+import com.iconsult.userservice.model.dto.request.*;
 import com.iconsult.userservice.model.dto.response.ResponseDTO;
 import com.iconsult.userservice.model.entity.Customer;
 import com.iconsult.userservice.service.Impl.CustomerServiceImpl;
@@ -72,6 +69,24 @@ public class CustomerController
     public CustomResponseEntity<ResponseDTO> forgotUserName(@Valid @RequestBody ForgetUsernameDto forgetUsernameDto)
     {
         return this.customerServiceImpl.forgetUserName(forgetUsernameDto);
+    }
+
+    @PostMapping("/forgetPassword")
+    public CustomResponseEntity<ResponseDTO> forgetPassword(@Valid @RequestBody ForgetUsernameDto forgetUsernameDto)
+    {
+        return this.customerServiceImpl.forgetPassword(forgetUsernameDto);
+    }
+
+    @GetMapping("/verifyForgetPasswordToken")
+    public CustomResponseEntity<ResponseDTO> verifyResetPasswordToken(@RequestParam String token)
+    {
+        return this.customerServiceImpl.verifyResetPasswordToken(token);
+    }
+
+    @PostMapping("/confirmForgetPassword")
+    public CustomResponseEntity<ResponseDTO> resetPassword(@RequestBody ResetPasswordDto resetPasswordDto)
+    {
+        return this.customerServiceImpl.resetPassword(resetPasswordDto);
     }
 
     @GetMapping("/{id}")

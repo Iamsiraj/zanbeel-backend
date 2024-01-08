@@ -1,12 +1,15 @@
 package com.iconsult.userservice.service.Impl;
 
+import com.iconsult.userservice.Util.Util;
 import com.iconsult.userservice.exception.ServiceException;
 import com.iconsult.userservice.model.dto.request.CustomerDto;
 import com.iconsult.userservice.model.dto.request.ForgetUsernameDto;
 import com.iconsult.userservice.model.dto.request.LoginDto;
+import com.iconsult.userservice.model.dto.request.ResetPasswordDto;
 import com.iconsult.userservice.model.dto.response.AccountDto;
 import com.iconsult.userservice.model.dto.response.KafkaMessageDto;
 import com.iconsult.userservice.model.dto.response.ResponseDTO;
+import com.iconsult.userservice.model.entity.AppConfiguration;
 import com.iconsult.userservice.model.entity.Customer;
 import com.iconsult.userservice.model.mapper.CustomerMapperImpl;
 import com.iconsult.userservice.repository.CustomerRepository;
@@ -16,6 +19,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.WebResource;
 import com.zanbeel.customUtility.model.CustomResponseEntity;
+import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +32,10 @@ import org.springframework.stereotype.Service;
 import javax.net.ssl.*;
 import javax.ws.rs.core.MediaType;
 import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -49,6 +55,9 @@ public class CustomerServiceImpl implements CustomerService
 
     @Autowired
     private CustomerMapperImpl customerMapperImpl;
+
+    @Autowired
+    private AppConfigurationImpl appConfigurationImpl;
 
     @Override
     public CustomResponseEntity<ResponseDTO> register(CustomerDto customerDto)
@@ -195,6 +204,123 @@ public class CustomerServiceImpl implements CustomerService
         }
 
         throw new ServiceException("User Not Found");
+    }
+
+    @Override
+    public CustomResponseEntity<ResponseDTO> forgetPassword(ForgetUsernameDto forgetUsernameDto)
+    {
+        LOGGER.info("ForgetPassword request received");
+
+        try
+        {
+            // Lookup customer in database by e-mail
+            Customer customer = findByEmailAddress(forgetUsernameDto.getEmail());
+
+            if(customer == null)
+            {
+                LOGGER.error("Customer with Email [{}] does not exist", forgetUsernameDto.getEmail());
+                throw new ServiceException("Customer not found!!");
+            }
+
+            // Generate random 36-character string token for reset password
+            customer.setResetToken(UUID.randomUUID().toString());
+            AppConfiguration appConfiguration = this.appConfigurationImpl.findByName("RESET_EXPIRE_TIME"); // fetching token expire time in minutes
+
+            // Generate reset token expire time for reset password
+            customer.setResetTokenExpireTime(Long.parseLong(Util.dateFormat.format(DateUtils.addMinutes(new Date(), Integer.parseInt(appConfiguration.getValue())))));
+
+            // Save token to database
+            save(customer);
+
+            String resetAppUrl = "http://localhost:8080/v1/customer/verifyForgetPasswordToken?token=" + customer.getResetToken();
+
+            // Email message
+            kafkaMessage = new KafkaMessageDto(forgetUsernameDto.getEmail(), "Forget Password", "Dear Customer, To reset your password, click the link below:\n" + resetAppUrl, true, false);
+            sendMessage(kafkaMessage, "forgetUserName");
+
+            LOGGER.info("Email sent [{}]", forgetUsernameDto.getEmail());
+            response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
+            return response;
+        }
+        catch (Exception e)
+        {
+            LOGGER.error("Password reset link send failed...");
+            LOGGER.error(e.getMessage());
+            throw new ServiceException("Oops! Password reset link send failed...");
+        }
+    }
+
+    @Override
+    public CustomResponseEntity<ResponseDTO> verifyResetPasswordToken(String token)
+    {
+        LOGGER.info("VerifyResetPasswordToken Request Received...");
+        LOGGER.info("Verifying ResetToken [{}]", token);
+
+        try
+        {
+            Customer customer = findByResetToken(token);
+
+            if(customer != null) // Token found in DB
+            {
+                if(customer.getResetTokenExpireTime() > Long.parseLong(Util.dateFormat.format(new Date())))
+                {
+                    LOGGER.info("Customer ResetPassword token found and valid for customer [{}]...", customer.getMobileNumber());
+                    response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
+                    response.getData().addField("token", customer.getResetToken());
+                    return response;
+                }
+                else
+                {
+                    LOGGER.error("Reset Token [{}] has been expired for customer [{}], replying...", customer.getResetToken(), customer.getMobileNumber());
+                    throw new ServiceException("Oops! This is an invalid password reset link.");
+                }
+            }
+
+            throw new ServiceException("Oops! This is an invalid password reset link.");
+        }
+        catch (Exception e)
+        {
+            LOGGER.error("Password reset failed...");
+            LOGGER.error(e.getMessage());
+            throw new ServiceException(e.getMessage());
+        }
+    }
+
+    @Override
+    public CustomResponseEntity<ResponseDTO> resetPassword(ResetPasswordDto resetPasswordDto)
+    {
+        LOGGER.info("ResetPassword Request Received...");
+
+        try
+        {
+            Customer resetCustomerPassword = findByResetToken(resetPasswordDto.getToken()); // Find the user associated with the reset token
+
+            if(resetCustomerPassword != null) // This should always be non-null, but we check just in case
+            {
+                resetCustomerPassword.setPassword(resetPasswordDto.getPassword()); // Set new password
+                resetCustomerPassword.setResetToken(null); // Set the reset token to null, so it cannot be used again
+                save(resetCustomerPassword); // Save customer
+
+                LOGGER.info("Password reset successful for customer [{}]", resetCustomerPassword.getMobileNumber());
+                response = new CustomResponseEntity<>(new ResponseDTO("You have successfully reset your password. You may now login.", 200), null);
+                return response;
+            }
+
+            LOGGER.error("Password reset failed...");
+            throw new ServiceException("Oops! This is an invalid password reset link.");
+        }
+        catch (Exception e)
+        {
+            LOGGER.error("Password reset failed...");
+            LOGGER.error(e.getMessage());
+            throw new ServiceException("Oops! Password reset failed..");
+        }
+    }
+
+    @Override
+    public Customer findByResetToken(String resetToken)
+    {
+        return this.customerRepository.findByResetToken(resetToken);
     }
 
     @Override
