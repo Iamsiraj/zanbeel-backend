@@ -26,9 +26,13 @@ public interface CustomerService
 
     Customer findByMobileNumber(String mobileNumber);
 
+    Customer findByUserName(String userName);
+
     Customer save(Customer customer);
 
     CustomResponseEntity<Customer> findById(Long id);
 
     CustomResponseEntity<ResponseDTO> forgetUserName(ForgetUsernameDto forgetUsernameDto);
+
+    CustomResponseEntity<Boolean> verifyCNIC(String cnic);
 }

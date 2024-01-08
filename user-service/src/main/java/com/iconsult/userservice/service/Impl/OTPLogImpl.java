@@ -3,6 +3,7 @@ package com.iconsult.userservice.service.Impl;
 import com.iconsult.userservice.Util.Util;
 import com.iconsult.userservice.exception.ServiceException;
 import com.iconsult.userservice.model.dto.request.OTPDto;
+import com.iconsult.userservice.model.dto.response.KafkaMessageDto;
 import com.iconsult.userservice.model.dto.response.ResponseDTO;
 import com.iconsult.userservice.model.entity.Customer;
 import com.iconsult.userservice.model.entity.OTPLog;
@@ -14,10 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class OTPLogImpl implements OTPLogSerivce {
@@ -31,6 +34,8 @@ public class OTPLogImpl implements OTPLogSerivce {
 
     @Autowired
     private CustomerServiceImpl customerServiceImpl;
+
+    private KafkaMessageDto kafkaMessage;
 
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
@@ -141,10 +146,25 @@ public class OTPLogImpl implements OTPLogSerivce {
         {
             OTPDto.setOtp(otp);
             LOGGER.info("OTP has been saved with Id: {}", otpLog.getId());
-            //kafkaTemplate.send("OTP", createOTPDto);
+            kafkaMessage = new KafkaMessageDto(OTPDto.getEmail(), "OTP", "Dear Customer, your OTP is " + OTPDto.getOtp(), true, false);
+            sendMessage(kafkaMessage, "OTP");
             LOGGER.info("OTP Sent Successfully to [{}]", OTPDto.getMobileNumber());
             return true;
         }
         return false;
+    }
+
+    public void sendMessage(Object message, String topicName)
+    {
+        CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(topicName, message);
+        future.whenComplete((result, ex) -> {
+            if (ex == null) {
+                LOGGER.info("Sent message=[" + message.toString() +
+                        "] with offset=[" + result.getRecordMetadata().offset() + "]");
+            } else {
+                LOGGER.error("Unable to send message=[" +
+                        message + "] due to : " + ex.getMessage());
+            }
+        });
     }
 }

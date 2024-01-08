@@ -12,18 +12,18 @@ public class CustomerDto
     @Pattern(regexp = "^033\\d{8}$", message = "Invalid Mobile number")
     private String mobileNumber;
 
-    @NotEmpty(message = "First Name is mandatory")
+    //@NotEmpty(message = "First Name is mandatory")
     private String firstName;
 
-    @NotEmpty(message = "Last Name is mandatory")
+    //@NotEmpty(message = "Last Name is mandatory")
     private String lastName;
 
     @NotEmpty(message = "CNIC is mandatory")
     @Size(min = 13, message = "Invalid CNIC")
     private String cnic;
 
-    @NotEmpty(message = "Account Number is mandatory")
-    @Size(min = 16, message = "Invalid Account Number")
+    //@NotEmpty(message = "Account Number is mandatory")
+    //@Size(min = 16, message = "Invalid Account Number")
     private String accountNumber;
 
     @NotEmpty(message = "Email is mandatory")
