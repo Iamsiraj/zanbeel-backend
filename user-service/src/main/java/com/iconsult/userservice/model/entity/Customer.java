@@ -23,4 +23,6 @@ public class Customer
     private String userName;
     private String password;
     private String securityPicture;
+    private String resetToken;
+    private Long resetTokenExpireTime;
 }

@@ -2,10 +2,7 @@ package com.iconsult.userservice.service;
 
 
 
-import com.iconsult.userservice.model.dto.request.CustomerDto;
-import com.iconsult.userservice.model.dto.request.ForgetUsernameDto;
-import com.iconsult.userservice.model.dto.request.LoginDto;
-import com.iconsult.userservice.model.dto.request.OTPDto;
+import com.iconsult.userservice.model.dto.request.*;
 import com.iconsult.userservice.model.dto.response.ResponseDTO;
 import com.iconsult.userservice.model.entity.Customer;
 import com.zanbeel.customUtility.model.CustomResponseEntity;
@@ -28,6 +25,8 @@ public interface CustomerService
 
     Customer findByUserName(String userName);
 
+    Customer findByResetToken(String resetToken);
+
     Customer save(Customer customer);
 
     CustomResponseEntity<Customer> findById(Long id);
@@ -35,4 +34,10 @@ public interface CustomerService
     CustomResponseEntity<ResponseDTO> forgetUserName(ForgetUsernameDto forgetUsernameDto);
 
     CustomResponseEntity<Boolean> verifyCNIC(String cnic);
+
+    CustomResponseEntity<ResponseDTO> forgetPassword(ForgetUsernameDto forgetUsernameDto);
+
+    CustomResponseEntity<ResponseDTO> verifyResetPasswordToken(String token);
+
+    CustomResponseEntity<ResponseDTO> resetPassword(ResetPasswordDto resetPasswordDto);
 }
