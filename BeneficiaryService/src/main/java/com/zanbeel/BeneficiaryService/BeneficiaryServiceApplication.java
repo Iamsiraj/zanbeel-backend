@@ -12,5 +12,4 @@ public class BeneficiaryServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BeneficiaryServiceApplication.class, args);
 	}
-
 }
