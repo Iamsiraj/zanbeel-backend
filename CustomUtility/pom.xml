@@ -53,6 +53,7 @@
 				</executions>
 			</plugin>
 		</plugins>
+		<finalName>custom-utility</finalName>
 	</build>
 
 </project>
