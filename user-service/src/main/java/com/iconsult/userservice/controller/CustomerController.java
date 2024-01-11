@@ -6,6 +6,7 @@ import com.iconsult.userservice.model.entity.Customer;
 import com.iconsult.userservice.service.Impl.CustomerServiceImpl;
 import com.iconsult.userservice.service.Impl.OTPLogImpl;
 import com.zanbeel.customUtility.model.CustomResponseEntity;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ public class CustomerController
     private OTPLogImpl otpLogImpl;
 
     @GetMapping("/ping")
+    @Hidden
     public String ping()
     {
         LOGGER.info("User-Service is running {}", LocalDateTime.now());
