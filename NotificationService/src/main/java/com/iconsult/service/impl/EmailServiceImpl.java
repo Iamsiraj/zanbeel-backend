@@ -1,6 +1,6 @@
 package com.iconsult.service.impl;
 
-import com.iconsult.userservice.model.dto.request.KafkaMessageDto;
+import com.iconsult.userservice.model.dto.response.KafkaMessageDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

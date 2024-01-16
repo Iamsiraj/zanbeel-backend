@@ -2,7 +2,7 @@ package com.iconsult.service.impl;
 
 
 import com.iconsult.service.NotificationConsumerService;
-import com.iconsult.userservice.model.dto.request.KafkaMessageDto;
+import com.iconsult.userservice.model.dto.response.KafkaMessageDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.mail.SimpleMailMessage;
