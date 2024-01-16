@@ -1,7 +1,11 @@
+# Server settings
+server:
+  port: 8084
+
 spring:
   kafka:
     consumer:
-      bootstrap-servers: 192.168.0.150:9092
+      bootstrap-servers: kafka:9092
       group-id: myGroup
       key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
@@ -33,3 +37,11 @@ spring:
 #      properties:
 #        spring.json.trusted.packages: '*'
 
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true

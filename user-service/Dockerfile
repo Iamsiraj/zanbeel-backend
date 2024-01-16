@@ -23,7 +23,7 @@ EXPOSE 8081
 
 # Environment variables for your application configuration
 ENV SERVER_PORT=8081 \
-    SPRING_KAFKA_PRODUCER_BOOTSTRAP_SERVERS=192.168.0.164:9092 \
+    SPRING_KAFKA_PRODUCER_BOOTSTRAP_SERVERS=kafka:9092 \
     SPRING_KAFKA_PRODUCER_KEY_SERIALIZER=org.apache.kafka.common.serialization.StringSerializer \
     SPRING_KAFKA_PRODUCER_VALUE_SERIALIZER=org.springframework.kafka.support.serializer.JsonSerializer \
     SPRING_APPLICATION_NAME=USER-SERVICE \
