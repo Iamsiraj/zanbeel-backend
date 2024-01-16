@@ -1,4 +1,4 @@
-package com.iconsult.userservice.model.dto.request;
+package com.iconsult.userservice.model.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

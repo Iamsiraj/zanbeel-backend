@@ -1,6 +1,6 @@
 package com.iconsult.service;
 
-import com.iconsult.userservice.model.dto.request.KafkaMessageDto;
+import com.iconsult.userservice.model.dto.response.KafkaMessageDto;
 import org.springframework.messaging.handler.annotation.Payload;
 
 public interface NotificationConsumerService {
