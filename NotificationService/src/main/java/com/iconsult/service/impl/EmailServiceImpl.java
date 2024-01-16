@@ -1,7 +1,6 @@
 package com.iconsult.service.impl;
 
-import com.iconsult.userservice.model.dto.request.CreateOTPDto;
-
+import com.iconsult.userservice.model.dto.request.KafkaMessageDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -18,13 +17,11 @@ public class EmailServiceImpl {
         this.javaMailSender = javaMailSender;
     }
     @Async
-    public void sendEmail(SimpleMailMessage mailMessage, String email, CreateOTPDto otpDto) {
-        mailMessage.setTo(email);
-        mailMessage.setSubject("Your Opt");
-        mailMessage.setFrom("officesajjadahmeda@gmail.com");
-        mailMessage.setText("Dear Customer, your OTP to complete your request is "
-                +otpDto.getOtp()
-                );
+    public void sendEmail(SimpleMailMessage mailMessage, String email, KafkaMessageDto kafkaMessageDto) {
+        mailMessage.setTo(kafkaMessageDto.getRecipient());
+        mailMessage.setSubject(kafkaMessageDto.getSubject());
+        mailMessage.setFrom(email);
+        mailMessage.setText(kafkaMessageDto.getMessage());
 
 
         javaMailSender.send(mailMessage);
