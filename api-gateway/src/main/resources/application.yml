@@ -8,15 +8,19 @@ spring:
     config:
       enabled: false  # Assuming you don't have a config server setup for this service
     gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+              allowedOrigins: "*"
+              allowedMethods: "*"
+              allowedHeaders: "*"
       routes:
         - id: USER-SERVICE
           uri: lb://USER-SERVICE
           predicates:
-              - Path=/v1/customer/**
-        - id: BENEFICIARY-SERVICE
-          uri: lb://BENEFICIARY-SERVICE
-          predicates:
-              - Path=/v1/beneficiary/**
+            - Path=/v1/customer/**
 
 eureka:
   client:
