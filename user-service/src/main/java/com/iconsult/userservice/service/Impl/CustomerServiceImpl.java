@@ -43,7 +43,7 @@ public class CustomerServiceImpl implements CustomerService
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
-    private final String URL = "http://iconsult-21:8081/account/getAccounts?cnicNumber=%s";
+    private final String URL = "http://192.168.0.196:8085/account/getAccounts?cnicNumber=%s";
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
 
