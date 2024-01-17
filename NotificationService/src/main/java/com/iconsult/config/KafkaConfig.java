@@ -14,9 +14,15 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaConfig {
 
     @Bean
-    public NewTopic topic()
+    public NewTopic topicOTP()
     {
         return TopicBuilder.name("OTP").build();
+    }
+
+    @Bean
+    public NewTopic topicForgetUserName()
+    {
+        return TopicBuilder.name("forgetUserName").build();
     }
 //    @Bean
 //    public Map<String, Object> consumerConfig() {
