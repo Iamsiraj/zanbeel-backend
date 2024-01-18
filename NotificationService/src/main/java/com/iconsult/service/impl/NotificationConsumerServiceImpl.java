@@ -14,6 +14,7 @@ public class NotificationConsumerServiceImpl implements NotificationConsumerServ
     @Autowired
     private EmailServiceImpl emailServiceImpl;
     @KafkaListener(topics = "OTP", groupId = "myGroup")
+    @KafkaListener(topics = "forgetUserName", groupId = "myGroup")
 
 
     public void consumeMsg(@Payload KafkaMessageDto otpDto) {
