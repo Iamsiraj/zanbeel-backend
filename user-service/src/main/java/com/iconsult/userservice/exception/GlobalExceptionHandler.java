@@ -1,6 +1,6 @@
 package com.iconsult.userservice.exception;
 
-import com.iconsult.userservice.model.CustomResponseEntity;
+import com.zanbeel.customUtility.model.CustomResponseEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,10 +28,10 @@ public class GlobalExceptionHandler {
 //    }
 
     @ExceptionHandler(ServiceException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
-    public ResponseEntity<Map<String, List<String>>> handleNotFoundException(ServiceException ex) {
-        List<String> errors = Collections.singletonList(ex.getMessage());
-        return new ResponseEntity<>(getErrorsMap(errors), new HttpHeaders(), HttpStatus.NOT_FOUND);
+    public CustomResponseEntity handleNotFoundException(ServiceException ex) {
+        return new CustomResponseEntity<>(1000, ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

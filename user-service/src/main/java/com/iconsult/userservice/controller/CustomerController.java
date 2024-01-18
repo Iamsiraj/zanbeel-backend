@@ -38,7 +38,7 @@ public class CustomerController
     }
 
     @PostMapping("/signup")
-    public CustomResponseEntity<ResponseDTO> register(@Valid @RequestBody CustomerDto customerDto)
+    public CustomResponseEntity register(@Valid @RequestBody CustomerDto customerDto)
     {
         return this.customerServiceImpl.register(customerDto);
     }
@@ -56,7 +56,7 @@ public class CustomerController
     }
 
     @GetMapping("/verifyCNIC")
-    public CustomResponseEntity<Boolean> verifyCNIC(@RequestParam String cnic)
+    public CustomResponseEntity verifyCNIC(@RequestParam String cnic)
     {
         return this.customerServiceImpl.verifyCNIC(cnic);
     }
@@ -91,7 +91,7 @@ public class CustomerController
         return this.customerServiceImpl.resetPassword(resetPasswordDto);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/getCustomer/{id}")
     public CustomResponseEntity<Customer> findById(@PathVariable Long id)
     {
         return this.customerServiceImpl.findById(id);
