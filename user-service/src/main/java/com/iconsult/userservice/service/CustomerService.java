@@ -11,7 +11,7 @@ public interface CustomerService
 {
     Customer addUser(Customer customer);
 
-    CustomResponseEntity<ResponseDTO> register(CustomerDto customerDto);
+    CustomResponseEntity register(CustomerDto customerDto);
 
     CustomResponseEntity<ResponseDTO> login(LoginDto loginDto);
 
@@ -33,7 +33,7 @@ public interface CustomerService
 
     CustomResponseEntity<ResponseDTO> forgetUserName(ForgetUsernameDto forgetUsernameDto);
 
-    CustomResponseEntity<Boolean> verifyCNIC(String cnic);
+    CustomResponseEntity verifyCNIC(String cnic);
 
     CustomResponseEntity<ResponseDTO> forgetPassword(ForgetUsernameDto forgetUsernameDto);
 

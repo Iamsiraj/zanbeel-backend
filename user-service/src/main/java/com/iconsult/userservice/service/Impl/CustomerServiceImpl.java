@@ -49,7 +49,7 @@ public class CustomerServiceImpl implements CustomerService
 
     private KafkaMessageDto kafkaMessage;
 
-    private CustomResponseEntity<ResponseDTO> response;
+    private CustomResponseEntity response;
     @Autowired
     private CustomerRepository customerRepository;
 
@@ -60,7 +60,7 @@ public class CustomerServiceImpl implements CustomerService
     private AppConfigurationImpl appConfigurationImpl;
 
     @Override
-    public CustomResponseEntity<ResponseDTO> register(CustomerDto customerDto)
+    public CustomResponseEntity register(CustomerDto customerDto)
     {
         LOGGER.info("Sign up Request received");
 
@@ -97,11 +97,11 @@ public class CustomerServiceImpl implements CustomerService
 
         LOGGER.info("Customer has been saved with Id {}", customer.getId());
 
-        response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
-        response.getData().addField("mobileNumber", customer.getMobileNumber());
-        response.getData().addField("customerId", customer.getId());
+        response = new CustomResponseEntity<>("Success");
+        response.addField("mobileNumber", customer.getMobileNumber());
+        response.addField("customerId", customer.getId());
 
-        return new ResponseEntity<>(response, HttpStatus.CREATED).getBody();
+        return response;
     }
 
     @Override
@@ -125,16 +125,16 @@ public class CustomerServiceImpl implements CustomerService
     }
 
     @Override
-    public CustomResponseEntity<Boolean> verifyCNIC(String cnic)
+    public CustomResponseEntity verifyCNIC(String cnic)
     {
         LOGGER.info("Verify CNIC request received");
 
         if(!accountExist(cnic))
         {
             LOGGER.error("Customer account does not exist [" + cnic + "], cannot allow signup, rejecting...");
-            return CustomResponseEntity.<Boolean>builder().data(false).build();
+            throw new ServiceException(String.format("Customer with CNIC %s already exists", cnic));
         }
-        return CustomResponseEntity.<Boolean>builder().data(true).build();
+        return new CustomResponseEntity<>("Customer Account Exists, allowing sign up");
     }
 
     @Override
@@ -165,7 +165,7 @@ public class CustomerServiceImpl implements CustomerService
         if (!student.isPresent()) {
             throw new ServiceException("Customer Not Found");
         }
-        return CustomResponseEntity.<Customer>builder().data(student.get()).build();
+        return new CustomResponseEntity<>("Data found");
     }
 
     @Override
@@ -266,7 +266,7 @@ public class CustomerServiceImpl implements CustomerService
                 {
                     LOGGER.info("Customer ResetPassword token found and valid for customer [{}]...", customer.getMobileNumber());
                     response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
-                    response.getData().addField("token", customer.getResetToken());
+                    response.addField("token", customer.getResetToken());
                     return response;
                 }
                 else
