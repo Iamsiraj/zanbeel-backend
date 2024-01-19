@@ -227,7 +227,7 @@ public class CustomerServiceImpl implements CustomerService
             // Save token to database
             save(customer);
 
-            String resetAppUrl = "http://192.168.0.196:8080/v1/customer/verifyForgetPasswordToken?token=" + customer.getResetToken();
+            String resetAppUrl = "http://192.168.0.196:9094/v1/customer/verifyForgetPasswordToken?token=" + customer.getResetToken();
 
             // Email message
             kafkaMessage = new KafkaMessageDto(forgetUsernameDto.getEmail(), "Forget Password", "Dear Customer, To reset your password, click the link below:\n" + resetAppUrl, true, false);
