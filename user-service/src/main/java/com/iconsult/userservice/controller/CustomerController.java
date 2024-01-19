@@ -11,8 +11,6 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -44,13 +42,13 @@ public class CustomerController
     }
 
     @PostMapping("/createOTP")
-    public CustomResponseEntity<ResponseDTO> createOTP(@Valid @RequestBody OTPDto OTPDto)
+    public CustomResponseEntity createOTP(@Valid @RequestBody OTPDto OTPDto)
     {
         return this.otpLogImpl.createOTP(OTPDto);
     }
 
     @PostMapping("/verifyOTP")
-    public CustomResponseEntity<ResponseDTO> verifyOTP(@Valid @RequestBody OTPDto OTPDto)
+    public CustomResponseEntity verifyOTP(@Valid @RequestBody OTPDto OTPDto)
     {
         return this.otpLogImpl.verifyOTP(OTPDto);
     }
@@ -62,37 +60,37 @@ public class CustomerController
     }
 
     @PostMapping("/login")
-    public CustomResponseEntity<ResponseDTO> login(@Valid @RequestBody LoginDto loginDto)
+    public CustomResponseEntity login(@Valid @RequestBody LoginDto loginDto)
     {
         return this.customerServiceImpl.login(loginDto);
     }
 
     @PostMapping("/forgetUserName")
-    public CustomResponseEntity<ResponseDTO> forgotUserName(@Valid @RequestBody ForgetUsernameDto forgetUsernameDto)
+    public CustomResponseEntity forgotUserName(@Valid @RequestBody ForgetUsernameDto forgetUsernameDto)
     {
         return this.customerServiceImpl.forgetUserName(forgetUsernameDto);
     }
 
     @PostMapping("/forgetPassword")
-    public CustomResponseEntity<ResponseDTO> forgetPassword(@Valid @RequestBody ForgetUsernameDto forgetUsernameDto)
+    public CustomResponseEntity forgetPassword(@Valid @RequestBody ForgetUsernameDto forgetUsernameDto)
     {
         return this.customerServiceImpl.forgetPassword(forgetUsernameDto);
     }
 
     @GetMapping("/verifyForgetPasswordToken")
-    public CustomResponseEntity<ResponseDTO> verifyResetPasswordToken(@RequestParam String token)
+    public CustomResponseEntity verifyResetPasswordToken(@RequestParam String token)
     {
         return this.customerServiceImpl.verifyResetPasswordToken(token);
     }
 
     @PostMapping("/confirmForgetPassword")
-    public CustomResponseEntity<ResponseDTO> resetPassword(@RequestBody ResetPasswordDto resetPasswordDto)
+    public CustomResponseEntity resetPassword(@RequestBody ResetPasswordDto resetPasswordDto)
     {
         return this.customerServiceImpl.resetPassword(resetPasswordDto);
     }
 
     @GetMapping("/getCustomer/{id}")
-    public CustomResponseEntity<Customer> findById(@PathVariable Long id)
+    public CustomResponseEntity findById(@PathVariable Long id)
     {
         return this.customerServiceImpl.findById(id);
     }

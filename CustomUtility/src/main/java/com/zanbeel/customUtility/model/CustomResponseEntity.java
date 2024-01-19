@@ -16,18 +16,17 @@ public class CustomResponseEntity<T> {
     private int errorCode;
     private boolean success;
     private String message;
-    private Map<String, Object> data;
+    private T data;
 
     public CustomResponseEntity(T data, String message) {
         this.success = true;
         this.message = message;
-        this.data = new HashMap<>();
+        this.data = data;
     }
 
     public CustomResponseEntity(String message) {
         this.success = true;
         this.message = message;
-        this.data = new HashMap<>();
     }
 
     public CustomResponseEntity(int errorCode, String message) {
@@ -36,8 +35,11 @@ public class CustomResponseEntity<T> {
         this.message = message;
     }
 
-    public void addField(String fieldName, Object value) {
-        data.put(fieldName, value);
+    public CustomResponseEntity(int errorCode, String message, T data) {
+        this.errorCode = errorCode;
+        this.success = false;
+        this.message = message;
+        this.data = data;
     }
 
     // Static method to create an ApiResponse for exceptions

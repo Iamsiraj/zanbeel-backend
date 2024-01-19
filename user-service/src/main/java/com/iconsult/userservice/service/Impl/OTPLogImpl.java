@@ -28,7 +28,7 @@ public class OTPLogImpl implements OTPLogSerivce {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OTPLogImpl.class);
 
-    private CustomResponseEntity<ResponseDTO> response;
+    private CustomResponseEntity response;
 
     @Autowired
     private OTPLogRepository otpLogRepository;
@@ -54,7 +54,7 @@ public class OTPLogImpl implements OTPLogSerivce {
     }
 
     @Override
-    public CustomResponseEntity<ResponseDTO> createOTP(OTPDto OTPDto)
+    public CustomResponseEntity createOTP(OTPDto OTPDto)
     {
         LOGGER.info("Executing createOTP Request...");
 
@@ -83,7 +83,7 @@ public class OTPLogImpl implements OTPLogSerivce {
     }
 
     @Override
-    public CustomResponseEntity<ResponseDTO> verifyOTP(OTPDto verifyOTPDto)
+    public CustomResponseEntity verifyOTP(OTPDto verifyOTPDto)
     {
         LOGGER.info("Executing confirmOTP Request...");
 
@@ -103,21 +103,21 @@ public class OTPLogImpl implements OTPLogSerivce {
                         if(save(otp).getId() != null)
                         {
                             LOGGER.info("OTP verified successfully for customer [{}], replying...", verifyOTPDto.getMobileNumber());
-                            response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
+                            response = new CustomResponseEntity<>("verified otp successfully");
                             return response;
                         }
                     }
                     else
                     {
                         LOGGER.info("OTP does been match for customer [{}], replying...", verifyOTPDto.getMobileNumber());
-                        response = new CustomResponseEntity<>(new ResponseDTO("Failed", 200), null);
+                        response = new CustomResponseEntity<>(1013, "incorrect otp");
                         return response;
                     }
                 }
                 else
                 {
                     LOGGER.info("OTP has been expired for customer [{}], replying...", verifyOTPDto.getMobileNumber());
-                    response = new CustomResponseEntity<>(new ResponseDTO("OTP has been expired for customer [" + verifyOTPDto.getMobileNumber() + "]", 101), null);
+                    response = new CustomResponseEntity<>(1013, "OTP has been expired ");
                     return response;
                 }
             }
@@ -144,11 +144,9 @@ public class OTPLogImpl implements OTPLogSerivce {
         otpLog.setExpiryDateTime(Long.parseLong(Util.dateFormat.format(DateUtils.addMinutes(new Date(), Integer.parseInt(appConfiguration.getValue())))));
         otpLog.setSmsMessage("Dear Customer, your OTP to complete your request is " + otp);
 
-        response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
-        response.getData().addField("OTP", otp);
+        response = new CustomResponseEntity<>(otp , "otp sent Successfully");
 
-        if(save(otpLog).getId() != null)
-        {
+        if(save(otpLog).getId() != null) {
             OTPDto.setOtp(otp);
             LOGGER.info("OTP has been saved with Id: {}", otpLog.getId());
             kafkaMessage = new KafkaMessageDto(OTPDto.getEmail(), "OTP", "Dear Customer, your OTP is " + OTPDto.getOtp(), true, false);
