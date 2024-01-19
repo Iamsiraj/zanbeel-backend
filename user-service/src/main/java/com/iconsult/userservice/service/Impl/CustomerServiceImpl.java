@@ -8,7 +8,6 @@ import com.iconsult.userservice.model.dto.request.LoginDto;
 import com.iconsult.userservice.model.dto.request.ResetPasswordDto;
 import com.iconsult.userservice.model.dto.response.AccountDto;
 import com.iconsult.userservice.model.dto.response.KafkaMessageDto;
-import com.iconsult.userservice.model.dto.response.ResponseDTO;
 import com.iconsult.userservice.model.entity.AppConfiguration;
 import com.iconsult.userservice.model.entity.Customer;
 import com.iconsult.userservice.model.mapper.CustomerMapperImpl;
@@ -23,7 +22,6 @@ import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -32,10 +30,7 @@ import org.springframework.stereotype.Service;
 import javax.net.ssl.*;
 import javax.ws.rs.core.MediaType;
 import java.security.cert.X509Certificate;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -96,23 +91,22 @@ public class CustomerServiceImpl implements CustomerService
         Customer customer = addUser(customerMapperImpl.dtoToJpe(customerDto));
 
         LOGGER.info("Customer has been saved with Id {}", customer.getId());
-
-        response = new CustomResponseEntity<>("Success");
-        response.addField("mobileNumber", customer.getMobileNumber());
-        response.addField("customerId", customer.getId());
+        Map<String,Object> result = new HashMap<>();
+        result.put("mobileNumber",customer.getMobileNumber());
+        result.put("customerId",customer.getId());
 
         return response;
     }
 
     @Override
-    public CustomResponseEntity<ResponseDTO> login(LoginDto loginDto)
+    public CustomResponseEntity login(LoginDto loginDto)
     {
         Customer customer = customerRepository.findByEmail(loginDto.getEmail());
         if(customer != null)
         {
             if(customer.getEmail().equals(loginDto.getEmail()) && customer.getPassword().equals(loginDto.getPassword()))
             {
-                response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
+                response = new CustomResponseEntity<>("customer logged in successfully");
                 return response;
             }
             else
@@ -132,7 +126,7 @@ public class CustomerServiceImpl implements CustomerService
         if(!accountExist(cnic))
         {
             LOGGER.error("Customer account does not exist [" + cnic + "], cannot allow signup, rejecting...");
-            throw new ServiceException(String.format("Customer with CNIC %s already exists", cnic));
+            throw new ServiceException(String.format("Customer account does not exists", cnic));
         }
         return new CustomResponseEntity<>("Customer Account Exists, allowing sign up");
     }
@@ -160,16 +154,18 @@ public class CustomerServiceImpl implements CustomerService
     }
 
     @Override
-    public CustomResponseEntity<Customer> findById(Long id) {
-        Optional<Customer> student = this.customerRepository.findById(id);
-        if (!student.isPresent()) {
+    public CustomResponseEntity findById(Long id) {
+        Optional<Customer> customer = this.customerRepository.findById(id);
+        if (!customer.isPresent()) {
             throw new ServiceException("Customer Not Found");
         }
-        return new CustomResponseEntity<>("Data found");
+
+        response = new CustomResponseEntity<>(customer, "Data Found");
+        return response;
     }
 
     @Override
-    public CustomResponseEntity<ResponseDTO> forgetUserName(ForgetUsernameDto forgetUsernameDto)
+    public CustomResponseEntity forgetUserName(ForgetUsernameDto forgetUsernameDto)
     {
         LOGGER.info("ForgetUsername Request Received...");
 
@@ -183,7 +179,7 @@ public class CustomerServiceImpl implements CustomerService
             sendMessage(kafkaMessage, "forgetUserName");
 
             LOGGER.info("Email sent [{}]", forgetUsernameDto.getEmail());
-            response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
+            response = new CustomResponseEntity<>("user name sent successfully");
             return response;
         }
 
@@ -199,18 +195,17 @@ public class CustomerServiceImpl implements CustomerService
             sendMessage(kafkaMessage, "forgetUserName");
 
             LOGGER.info("SMS sent [{}]", forgetUsernameDto.getMobileNumber());
-            response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
+            response = new CustomResponseEntity<>("user name sent successfully");
             return response;
         }
 
-        throw new ServiceException("User Not Found");
+        throw new ServiceException("Customer Not Found");
     }
 
     @Override
-    public CustomResponseEntity<ResponseDTO> forgetPassword(ForgetUsernameDto forgetUsernameDto)
+    public CustomResponseEntity forgetPassword(ForgetUsernameDto forgetUsernameDto)
     {
         LOGGER.info("ForgetPassword request received");
-
         try
         {
             // Lookup customer in database by e-mail
@@ -239,7 +234,7 @@ public class CustomerServiceImpl implements CustomerService
             sendMessage(kafkaMessage, "forgetUserName");
 
             LOGGER.info("Email sent [{}]", forgetUsernameDto.getEmail());
-            response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
+            response = new CustomResponseEntity<>("user name sent successfully");
             return response;
         }
         catch (Exception e)
@@ -251,7 +246,7 @@ public class CustomerServiceImpl implements CustomerService
     }
 
     @Override
-    public CustomResponseEntity<ResponseDTO> verifyResetPasswordToken(String token)
+    public CustomResponseEntity verifyResetPasswordToken(String token)
     {
         LOGGER.info("VerifyResetPasswordToken Request Received...");
         LOGGER.info("Verifying ResetToken [{}]", token);
@@ -265,8 +260,7 @@ public class CustomerServiceImpl implements CustomerService
                 if(customer.getResetTokenExpireTime() > Long.parseLong(Util.dateFormat.format(new Date())))
                 {
                     LOGGER.info("Customer ResetPassword token found and valid for customer [{}]...", customer.getMobileNumber());
-                    response = new CustomResponseEntity<>(new ResponseDTO("Success", 200), null);
-                    response.addField("token", customer.getResetToken());
+                    response = new CustomResponseEntity<>(token,"Token found and valid");
                     return response;
                 }
                 else
@@ -287,7 +281,7 @@ public class CustomerServiceImpl implements CustomerService
     }
 
     @Override
-    public CustomResponseEntity<ResponseDTO> resetPassword(ResetPasswordDto resetPasswordDto)
+    public CustomResponseEntity resetPassword(ResetPasswordDto resetPasswordDto)
     {
         LOGGER.info("ResetPassword Request Received...");
 
@@ -302,7 +296,7 @@ public class CustomerServiceImpl implements CustomerService
                 save(resetCustomerPassword); // Save customer
 
                 LOGGER.info("Password reset successful for customer [{}]", resetCustomerPassword.getMobileNumber());
-                response = new CustomResponseEntity<>(new ResponseDTO("You have successfully reset your password. You may now login.", 200), null);
+                response = new CustomResponseEntity<>("You have successfully reset your password. You may now login.");
                 return response;
             }
 

@@ -15,7 +15,7 @@ public interface OTPLogSerivce {
 
     List<OTPLog> findByMobileNumberAndIsExpired(String mobileNumber, Boolean isExpired);
 
-    CustomResponseEntity<ResponseDTO> createOTP(OTPDto OTPDto);
+    CustomResponseEntity createOTP(OTPDto OTPDto);
 
-    CustomResponseEntity<ResponseDTO> verifyOTP(OTPDto verifyOTPDto);
+    CustomResponseEntity verifyOTP(OTPDto verifyOTPDto);
 }

@@ -13,7 +13,7 @@ public interface CustomerService
 
     CustomResponseEntity register(CustomerDto customerDto);
 
-    CustomResponseEntity<ResponseDTO> login(LoginDto loginDto);
+    CustomResponseEntity login(LoginDto loginDto);
 
     void deleteUser(Long id);
 
@@ -29,15 +29,15 @@ public interface CustomerService
 
     Customer save(Customer customer);
 
-    CustomResponseEntity<Customer> findById(Long id);
+    CustomResponseEntity findById(Long id);
 
-    CustomResponseEntity<ResponseDTO> forgetUserName(ForgetUsernameDto forgetUsernameDto);
+    CustomResponseEntity forgetUserName(ForgetUsernameDto forgetUsernameDto);
 
     CustomResponseEntity verifyCNIC(String cnic);
 
-    CustomResponseEntity<ResponseDTO> forgetPassword(ForgetUsernameDto forgetUsernameDto);
+    CustomResponseEntity forgetPassword(ForgetUsernameDto forgetUsernameDto);
 
-    CustomResponseEntity<ResponseDTO> verifyResetPasswordToken(String token);
+    CustomResponseEntity verifyResetPasswordToken(String token);
 
-    CustomResponseEntity<ResponseDTO> resetPassword(ResetPasswordDto resetPasswordDto);
+    CustomResponseEntity resetPassword(ResetPasswordDto resetPasswordDto);
 }
