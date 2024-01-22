@@ -1,10 +1,6 @@
 package com.zanbeel.BeneficiaryService.repository;
 
-import com.zanbeel.BeneficiaryService.model.dto.request.BeneficiaryRequestDto;
-import com.zanbeel.BeneficiaryService.model.dto.response.CustomerResponseDto;
-import com.zanbeel.BeneficiaryService.model.entity.Beneficiary;
 import com.zanbeel.BeneficiaryService.model.entity.Otp;
-import com.zanbeel.customUtility.model.CustomResponseEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -25,7 +25,7 @@
         @Autowired
         private OtpService otpService;
 
-        @PostMapping()
+        @PostMapping
         public CustomResponseEntity<OtpRequestDto> addBeneficiary(@RequestBody BeneficiaryRequestDto beneficiaryRequestDto) {
             return beneficiaryService.addBeneficiary(beneficiaryRequestDto);
         }
@@ -35,7 +35,7 @@
             return beneficiaryService.updateBeneficiary(beneficiaryId, updateBeneficiaryRequestDto);
         }
 
-        @GetMapping(value = "/{beneficiaryId}")
+        @GetMapping(value = "getBeneficiary/{beneficiaryId}")
         public CustomResponseEntity<BeneficiaryResponseDto> getBeneficiaryById(@PathVariable Long beneficiaryId) {
             return beneficiaryService.getBeneficiaryById(beneficiaryId);
         }

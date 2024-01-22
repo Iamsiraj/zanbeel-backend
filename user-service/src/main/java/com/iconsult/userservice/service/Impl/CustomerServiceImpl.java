@@ -154,14 +154,12 @@ public class CustomerServiceImpl implements CustomerService
     }
 
     @Override
-    public CustomResponseEntity findById(Long id) {
+    public CustomResponseEntity<Customer> findById(Long id) {
         Optional<Customer> customer = this.customerRepository.findById(id);
         if (!customer.isPresent()) {
-            throw new ServiceException("Customer Not Found");
+            return new CustomResponseEntity<>(1000, "Customer Not Found");
         }
-
-        response = new CustomResponseEntity<>(customer, "Data Found");
-        return response;
+        return new CustomResponseEntity<>(customer.get(), "Data Found");
     }
 
     @Override

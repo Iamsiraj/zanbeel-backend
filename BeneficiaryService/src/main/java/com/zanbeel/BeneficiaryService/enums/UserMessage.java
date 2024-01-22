@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public enum UserMessage {
-    USER_NOT_FOUND(1, "User not Found");
+    USER_NOT_FOUND(1, "Customer not Found");
 
     private int code;
     private String value;
