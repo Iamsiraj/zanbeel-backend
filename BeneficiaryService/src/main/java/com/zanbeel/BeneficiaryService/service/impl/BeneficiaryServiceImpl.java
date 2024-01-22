@@ -8,7 +8,7 @@ import com.zanbeel.BeneficiaryService.model.dto.request.BeneficiaryRequestDto;
 import com.zanbeel.BeneficiaryService.model.dto.request.OtpRequestDto;
 import com.zanbeel.BeneficiaryService.model.dto.request.UpdateBeneficiaryRequestDto;
 import com.zanbeel.BeneficiaryService.model.dto.response.BeneficiaryResponseDto;
-import com.zanbeel.BeneficiaryService.model.dto.response.CustomerResponseDto;
+import com.zanbeel.BeneficiaryService.model.dto.response.Customer;
 import com.zanbeel.BeneficiaryService.model.entity.Beneficiary;
 import com.zanbeel.BeneficiaryService.model.mapper.BeneficiaryMapper;
 import com.zanbeel.BeneficiaryService.repository.BeneficiaryRepository;
@@ -45,14 +45,15 @@ public class BeneficiaryServiceImpl implements BeneficiaryService{
         }
         BeneficiaryResponseDto beneficiaryResponseDto = BeneficiaryMapper.INSTANCE.
                 mapBeneficiaryToBeneficiaryResponseDto(beneficiary.get());
-        return CustomResponseEntity.<BeneficiaryResponseDto>builder().data(beneficiaryResponseDto).build();
+
+        return new CustomResponseEntity<>(beneficiaryResponseDto, BeneficiaryMessage.BENEFICIARY_FOUND.getValue());
     }
     @Override
     public CustomResponseEntity<List<BeneficiaryResponseDto>> getAllBeneficiaryByCustomerId(Long customerId) {
         List<Beneficiary> beneficiaries = beneficiaryRepository.findByCustomerIdAndIsActive(customerId, true);
         List<BeneficiaryResponseDto> beneficiaryResponseDtos = beneficiaries.stream()
                 .map(BeneficiaryMapper.INSTANCE::mapBeneficiaryToBeneficiaryResponseDto).collect(Collectors.toList());
-        return CustomResponseEntity.<List<BeneficiaryResponseDto>>builder().data(beneficiaryResponseDtos).build();
+        return new CustomResponseEntity<>(beneficiaryResponseDtos, BeneficiaryMessage.BENEFICIARY_FOUND.getValue());
     }
     @Override
     public CustomResponseEntity<String> deleteBeneficiaryById(Long BeneficiaryId) {
@@ -61,34 +62,40 @@ public class BeneficiaryServiceImpl implements BeneficiaryService{
             throw new ServiceException(BeneficiaryMessage.BENEFICIARY_NOT_FOUND.getValue());
         }
         beneficiaryRepository.delete(beneficiary.get());
-        return CustomResponseEntity.<String>builder().data(BeneficiaryMessage.BENEFICIARY_DELETED.getValue()).build();
+        return new CustomResponseEntity<>(BeneficiaryId.toString(), BeneficiaryMessage.BENEFICIARY_DELETED.getValue());
     }
 
     @Override
     public CustomResponseEntity<OtpRequestDto> addBeneficiary(BeneficiaryRequestDto beneficiaryRequestDto) {
-        CustomResponseEntity<CustomerResponseDto> customerResponseDto = customerService.
-                getCustomerById(beneficiaryRequestDto.getCustomerId());
-        if (customerResponseDto.getData() == null) {
-            throw new ServiceException(UserMessage.USER_NOT_FOUND.getValue());
-        }
-        Optional<Beneficiary> OptionalBeneficiary = beneficiaryRepository.
-                findByAccountNumberAndCustomerId(beneficiaryRequestDto.getAccountNumber(),
-                beneficiaryRequestDto.getCustomerId());
-        Beneficiary beneficiary;
-        if (OptionalBeneficiary.isPresent()) {
-            if(OptionalBeneficiary.get().getIsActive()) {
-                throw new ServiceException(BeneficiaryMessage.BENEFICIARY_ALREADY_EXIST.getValue());
-            } else {
-                beneficiary = OptionalBeneficiary.get();
+        try{
+            CustomResponseEntity<Customer> customerResponseDto = customerService.findById(beneficiaryRequestDto.getCustomerId());
+            if (customerResponseDto.getData() == null) {
+                throw new ServiceException(UserMessage.USER_NOT_FOUND.getValue());
             }
-        } else {
-            beneficiary = BeneficiaryMapper.INSTANCE.mapBeneficiaryRequestDtoToBeneficiary(beneficiaryRequestDto, false);
+            Optional<Beneficiary> OptionalBeneficiary = beneficiaryRepository.
+                    findByAccountNumberAndCustomerId(beneficiaryRequestDto.getAccountNumber(),
+                            beneficiaryRequestDto.getCustomerId());
+            Beneficiary beneficiary;
+            if (OptionalBeneficiary.isPresent()) {
+                if(OptionalBeneficiary.get().getIsActive()) {
+                    throw new ServiceException(BeneficiaryMessage.BENEFICIARY_ALREADY_EXIST.getValue());
+                } else {
+                    beneficiary = OptionalBeneficiary.get();
+                }
+            } else {
+                beneficiary = BeneficiaryMapper.INSTANCE.mapBeneficiaryRequestDtoToBeneficiary(beneficiaryRequestDto, false);
+            }
+            beneficiaryRequestDto.setBeneficiaryId(beneficiaryRepository.save(beneficiary).getBeneficiaryId());
+            OtpRequestDto otpRequestDto = new OtpRequestDto(customerResponseDto.getData().getMobileNumber(),
+                    customerResponseDto.getData().getEmail(), beneficiaryRequestDto);
+            otpService.createAndSendOTP(otpRequestDto);
+
+            return new CustomResponseEntity<>(otpRequestDto, BeneficiaryMessage.BENEFICIARY_FOUND.getValue());
+        }catch (Exception e){
+            LOGGER.error(e.getMessage());
+            throw new ServiceException(e.getMessage());
         }
-        beneficiaryRequestDto.setBeneficiaryId(beneficiaryRepository.save(beneficiary).getBeneficiaryId());
-        OtpRequestDto otpRequestDto = new OtpRequestDto(customerResponseDto.getData().getMobileNumber(),
-                customerResponseDto.getData().getEmail(), beneficiaryRequestDto);
-        otpService.createAndSendOTP(otpRequestDto);
-        return CustomResponseEntity.<OtpRequestDto>builder().data(otpRequestDto).build();
+
     }
 
     @Override
@@ -100,7 +107,7 @@ public class BeneficiaryServiceImpl implements BeneficiaryService{
         }
         beneficiary.get().setNickName(updateBeneficiaryRequestDto.getNickName());
         beneficiaryRepository.save(beneficiary.get());
-        return CustomResponseEntity.<Beneficiary>builder().data(beneficiary.get()).build();
+        return new CustomResponseEntity<>(beneficiary.get(), BeneficiaryMessage.BENEFICIARY_UPDATED.getValue());
     }
 
 }

@@ -1,6 +1,5 @@
 package com.zanbeel.BeneficiaryService.model.dto.response;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CustomerResponseDto {
+public class Customer {
 
     private Long id;
 

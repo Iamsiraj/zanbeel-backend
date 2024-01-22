@@ -1,7 +1,6 @@
 package com.iconsult.userservice.controller;
 
 import com.iconsult.userservice.model.dto.request.*;
-import com.iconsult.userservice.model.dto.response.ResponseDTO;
 import com.iconsult.userservice.model.entity.Customer;
 import com.iconsult.userservice.service.Impl.CustomerServiceImpl;
 import com.iconsult.userservice.service.Impl.OTPLogImpl;
@@ -90,7 +89,7 @@ public class CustomerController
     }
 
     @GetMapping("/getCustomer/{id}")
-    public CustomResponseEntity findById(@PathVariable Long id)
+    public CustomResponseEntity<Customer> findById(@PathVariable Long id)
     {
         return this.customerServiceImpl.findById(id);
     }

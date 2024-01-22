@@ -1,9 +1,7 @@
 package com.iconsult.userservice.exception;
 
 import com.zanbeel.customUtility.model.CustomResponseEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -30,7 +28,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ServiceException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
-    public CustomResponseEntity handleNotFoundException(ServiceException ex) {
+    public CustomResponseEntity<Object> handleNotFoundException(ServiceException ex) {
         return new CustomResponseEntity<>(1000, ex.getMessage());
     }
 

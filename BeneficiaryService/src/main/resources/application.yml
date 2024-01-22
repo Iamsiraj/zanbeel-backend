@@ -13,7 +13,7 @@ spring:
   application:
     name: BENEFICIARY-SERVICE
   datasource:
-    url: jdbc:mysql://192.168.0.137/beneficiary
+    url: jdbc:mysql://192.168.0.3:3306/beneficiary
     username: user1
     password: User1#123
   jpa:
