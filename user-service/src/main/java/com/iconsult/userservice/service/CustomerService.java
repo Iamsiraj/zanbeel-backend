@@ -5,13 +5,14 @@ package com.iconsult.userservice.service;
 import com.iconsult.userservice.model.dto.request.*;
 import com.iconsult.userservice.model.dto.response.ResponseDTO;
 import com.iconsult.userservice.model.entity.Customer;
+import com.iconsult.userservice.service.Impl.OTPLogImpl;
 import com.zanbeel.customUtility.model.CustomResponseEntity;
 
 public interface CustomerService
 {
-    Customer addUser(Customer customer);
+     Customer addUser(Customer customer);
 
-    CustomResponseEntity register(CustomerDto customerDto);
+    CustomResponseEntity register(CustomerDto customerDto, OTPLogImpl otpLogImpl);
 
     CustomResponseEntity login(LoginDto loginDto);
 

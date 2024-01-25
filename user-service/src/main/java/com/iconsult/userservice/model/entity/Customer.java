@@ -24,5 +24,6 @@ public class Customer
     private String password;
     private String securityPicture;
     private String resetToken;
+    private String status; //00-Active ;; 01-Disable ;; 02-Closed
     private Long resetTokenExpireTime;
 }
