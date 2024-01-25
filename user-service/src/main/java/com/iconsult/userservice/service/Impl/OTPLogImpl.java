@@ -58,13 +58,13 @@ public class OTPLogImpl implements OTPLogSerivce {
     {
         LOGGER.info("Executing createOTP Request...");
 
-        Customer customer = this.customerServiceImpl.findByMobileNumber(OTPDto.getMobileNumber());
-
-        if(customer != null)
-        {
-            LOGGER.error("Customer already exists with mobile [" + OTPDto.getMobileNumber() + "], cannot allow signup, rejecting...");
-            throw new ServiceException(String.format("User with Mobile Number %s already exists", OTPDto.getMobileNumber()));
-        }
+//        Customer customer = this.customerServiceImpl.findByMobileNumber(OTPDto.getMobileNumber());
+//
+//        if(customer != null)
+//        {
+//            LOGGER.error("Customer already exists with mobile [" + OTPDto.getMobileNumber() + "], cannot allow signup, rejecting...");
+//            throw new ServiceException(String.format("User with Mobile Number %s already exists", OTPDto.getMobileNumber()));
+//        }
 
         // making all OTP for this mobile number expire
         for (OTPLog otp : findByMobileNumberAndIsExpired(OTPDto.getMobileNumber(), false)) {
