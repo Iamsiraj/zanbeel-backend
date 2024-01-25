@@ -9,7 +9,7 @@ import lombok.Setter;
 public class CustomerDto
 {
     @NotEmpty(message = "MobileNumber is mandatory")
-    @Pattern(regexp = "^033\\d{8}$", message = "Invalid Mobile number")
+    @Pattern(regexp = "^03\\d{9}$", message = "Invalid Mobile number")
     private String mobileNumber;
 
     //@NotEmpty(message = "First Name is mandatory")
