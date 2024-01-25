@@ -37,7 +37,7 @@ public class CustomerController
     @PostMapping("/signup")
     public CustomResponseEntity register(@Valid @RequestBody CustomerDto customerDto)
     {
-        return this.customerServiceImpl.register(customerDto);
+        return this.customerServiceImpl.register(customerDto, otpLogImpl);
     }
 
     @PostMapping("/createOTP")
@@ -53,6 +53,7 @@ public class CustomerController
     }
 
     @GetMapping("/verifyCNIC")
+    @Hidden
     public CustomResponseEntity verifyCNIC(@RequestParam String cnic)
     {
         return this.customerServiceImpl.verifyCNIC(cnic);
@@ -71,18 +72,21 @@ public class CustomerController
     }
 
     @PostMapping("/forgetPassword")
+    @Hidden
     public CustomResponseEntity forgetPassword(@Valid @RequestBody ForgetUsernameDto forgetUsernameDto)
     {
         return this.customerServiceImpl.forgetPassword(forgetUsernameDto);
     }
 
     @GetMapping("/verifyForgetPasswordToken")
+    @Hidden
     public CustomResponseEntity verifyResetPasswordToken(@RequestParam String token)
     {
         return this.customerServiceImpl.verifyResetPasswordToken(token);
     }
 
     @PostMapping("/confirmForgetPassword")
+    @Hidden
     public CustomResponseEntity resetPassword(@RequestBody ResetPasswordDto resetPasswordDto)
     {
         return this.customerServiceImpl.resetPassword(resetPasswordDto);

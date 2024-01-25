@@ -4,11 +4,14 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class OTPDto {
 
     @NotEmpty(message = "Mobile Number is mandatory")
@@ -19,4 +22,9 @@ public class OTPDto {
     private String email;
 
     private String otp;
+
+    public OTPDto(String mobileNumber, String email) {
+        this.mobileNumber = mobileNumber;
+        this.email = email;
+    }
 }

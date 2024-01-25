@@ -1,11 +1,9 @@
 package com.iconsult.userservice.service.Impl;
 
 import com.iconsult.userservice.Util.Util;
+import com.iconsult.userservice.enums.CustomerStatus;
 import com.iconsult.userservice.exception.ServiceException;
-import com.iconsult.userservice.model.dto.request.CustomerDto;
-import com.iconsult.userservice.model.dto.request.ForgetUsernameDto;
-import com.iconsult.userservice.model.dto.request.LoginDto;
-import com.iconsult.userservice.model.dto.request.ResetPasswordDto;
+import com.iconsult.userservice.model.dto.request.*;
 import com.iconsult.userservice.model.dto.response.AccountDto;
 import com.iconsult.userservice.model.dto.response.KafkaMessageDto;
 import com.iconsult.userservice.model.entity.AppConfiguration;
@@ -54,10 +52,60 @@ public class CustomerServiceImpl implements CustomerService
     @Autowired
     private AppConfigurationImpl appConfigurationImpl;
 
+//    @Override
+//    public CustomResponseEntity register(CustomerDto customerDto)
+//    {
+//        LOGGER.info("Sign up Request received");
+//
+//        // Duplicate Customer Check mobile number
+//        Customer customerDuplicate = findByMobileNumber(customerDto.getMobileNumber());
+//
+//        if(customerDuplicate != null)
+//        {
+//            LOGGER.error("Customer already exists with mobile [" + customerDto.getMobileNumber() + "], cannot allow signup, rejecting...");
+//            throw new ServiceException(String.format("Customer with Mobile Number %s already exists", customerDto.getMobileNumber()));
+//        }
+//
+//        // Duplicate Customer Check if email is present
+//        if(!customerDto.getEmail().isBlank())
+//        {
+//            customerDuplicate = findByEmailAddress(customerDto.getEmail());
+//            if(customerDuplicate != null)
+//            {
+//                LOGGER.error("Customer already exists with Email [" + customerDto.getEmail() + "], cannot allow signup, rejecting...");
+//                throw new ServiceException(String.format("Customer with Email %s already exists", customerDto.getEmail()));
+//            }
+//        }
+//
+//        // Duplicate Customer Check username
+//        customerDuplicate = findByUserName(customerDto.getUserName());
+//
+//        if(customerDuplicate != null)
+//        {
+//            LOGGER.error("Customer already exists with userName [" + customerDto.getUserName() + "], cannot allow signup, rejecting...");
+//            throw new ServiceException(String.format("Customer with userName %s already exists", customerDto.getUserName()));
+//        }
+//
+//        Customer customer = addUser(customerMapperImpl.dtoToJpe(customerDto));
+//
+//        LOGGER.info("Customer has been saved with Id {}", customer.getId());
+//        Map<String,Object> result = new HashMap<>();
+//        result.put("mobileNumber",customer.getMobileNumber());
+//        result.put("customerId",customer.getId());
+//
+//        return response;
+//    }
+
     @Override
-    public CustomResponseEntity register(CustomerDto customerDto)
+    public CustomResponseEntity register(CustomerDto customerDto, OTPLogImpl otpLogImpl)
     {
         LOGGER.info("Sign up Request received");
+
+        if(!accountExist(customerDto.getCnic()))
+        {
+            LOGGER.error("Customer account does not exist [" + customerDto.getCnic() + "], cannot allow signup, rejecting...");
+            throw new ServiceException(String.format("Customer account [%s] does not exist", customerDto.getCnic()));
+        }
 
         // Duplicate Customer Check mobile number
         Customer customerDuplicate = findByMobileNumber(customerDto.getMobileNumber());
@@ -88,12 +136,23 @@ public class CustomerServiceImpl implements CustomerService
             throw new ServiceException(String.format("Customer with userName %s already exists", customerDto.getUserName()));
         }
 
-        Customer customer = addUser(customerMapperImpl.dtoToJpe(customerDto));
+        Customer customer = customerMapperImpl.dtoToJpe(customerDto);
+        customer.setStatus(CustomerStatus.TEMP_BLOCK.getCode());
+        addUser(customer);
 
         LOGGER.info("Customer has been saved with Id {}", customer.getId());
-        Map<String,Object> result = new HashMap<>();
-        result.put("mobileNumber",customer.getMobileNumber());
-        result.put("customerId",customer.getId());
+
+        if(!otpLogImpl.createandSendOTP(new OTPDto(customerDto.getMobileNumber(), customerDto.getEmail()))) // sending OTP after register
+        {
+            LOGGER.error("Failed to create & Send OTP for Mobile [" + customerDto.getMobileNumber() + "], rejecting...");
+            throw new ServiceException("SMS Gateway Down");
+        }
+
+//        Map<String,Object> result = new HashMap<>();
+//        result.put("mobileNumber",customer.getMobileNumber());
+//        result.put("customerId",customer.getId());
+
+        response = new CustomResponseEntity<>("OTP sent Successfully");
 
         return response;
     }
@@ -106,7 +165,9 @@ public class CustomerServiceImpl implements CustomerService
         {
             if(customer.getEmail().equals(loginDto.getEmail()) && customer.getPassword().equals(loginDto.getPassword()))
             {
-                response = new CustomResponseEntity<>("customer logged in successfully");
+                Map<String,Object> data = new HashMap<>();
+                data.put("customerId", customer.getId());
+                response = new CustomResponseEntity<>(data, "customer logged in successfully");
                 return response;
             }
             else
