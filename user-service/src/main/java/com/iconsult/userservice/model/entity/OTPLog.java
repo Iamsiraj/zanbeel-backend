@@ -24,4 +24,5 @@ public class OTPLog
     private Long verifyDateTime;
     private String smsMessage;
     private String txnRefNum;
+    private String reason;
 }

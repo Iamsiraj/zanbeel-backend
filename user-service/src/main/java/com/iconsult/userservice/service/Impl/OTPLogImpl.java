@@ -1,6 +1,7 @@
 package com.iconsult.userservice.service.Impl;
 
 import com.iconsult.userservice.Util.Util;
+import com.iconsult.userservice.enums.SMSCategory;
 import com.iconsult.userservice.exception.ServiceException;
 import com.iconsult.userservice.model.dto.request.OTPDto;
 import com.iconsult.userservice.model.dto.response.KafkaMessageDto;
@@ -58,13 +59,13 @@ public class OTPLogImpl implements OTPLogSerivce {
     {
         LOGGER.info("Executing createOTP Request...");
 
-        Customer customer = this.customerServiceImpl.findByMobileNumber(OTPDto.getMobileNumber());
-
-        if(customer != null)
-        {
-            LOGGER.error("Customer already exists with mobile [" + OTPDto.getMobileNumber() + "], cannot allow signup, rejecting...");
-            throw new ServiceException(String.format("User with Mobile Number %s already exists", OTPDto.getMobileNumber()));
-        }
+//        Customer customer = this.customerServiceImpl.findByMobileNumber(OTPDto.getMobileNumber());
+//
+//        if(customer != null)
+//        {
+//            LOGGER.error("Customer already exists with mobile [" + OTPDto.getMobileNumber() + "], cannot allow signup, rejecting...");
+//            throw new ServiceException(String.format("User with Mobile Number %s already exists", OTPDto.getMobileNumber()));
+//        }
 
         // making all OTP for this mobile number expire
         for (OTPLog otp : findByMobileNumberAndIsExpired(OTPDto.getMobileNumber(), false)) {
@@ -99,6 +100,11 @@ public class OTPLogImpl implements OTPLogSerivce {
                     {
                         otp.setIsExpired(true);
                         otp.setVerifyDateTime(Long.parseLong(Util.dateFormat.format(new Date())));
+
+                        if(otp.getReason().equals(SMSCategory.VERIFY_MOBILE_DEVICE.getValue()))
+                        {
+                           customerServiceImpl.setCustomerStatus(verifyOTPDto.getEmail(), verifyOTPDto.getMobileNumber()); // updating status of customer
+                        }
 
                         if(save(otp).getId() != null)
                         {
@@ -140,6 +146,7 @@ public class OTPLogImpl implements OTPLogSerivce {
         otpLog.setIsExpired(false);
         otpLog.setIsVerified(false);
         otpLog.setCreateDateTime(Long.parseLong(Util.dateFormat.format(new Date())));
+        otpLog.setReason(OTPDto.getReason());
         AppConfiguration appConfiguration = this.appConfigurationImpl.findByName("OTP_EXPIRE_TIME"); // fetching otp expire time in minutes
         otpLog.setExpiryDateTime(Long.parseLong(Util.dateFormat.format(DateUtils.addMinutes(new Date(), Integer.parseInt(appConfiguration.getValue())))));
         otpLog.setSmsMessage("Dear Customer, your OTP to complete your request is " + otp);

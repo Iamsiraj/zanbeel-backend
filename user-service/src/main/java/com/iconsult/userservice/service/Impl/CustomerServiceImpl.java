@@ -2,6 +2,7 @@ package com.iconsult.userservice.service.Impl;
 
 import com.iconsult.userservice.Util.Util;
 import com.iconsult.userservice.enums.CustomerStatus;
+import com.iconsult.userservice.enums.ResponseCodes;
 import com.iconsult.userservice.exception.ServiceException;
 import com.iconsult.userservice.model.dto.request.*;
 import com.iconsult.userservice.model.dto.response.AccountDto;
@@ -161,8 +162,15 @@ public class CustomerServiceImpl implements CustomerService
     public CustomResponseEntity login(LoginDto loginDto)
     {
         Customer customer = customerRepository.findByEmail(loginDto.getEmail());
+
         if(customer != null)
         {
+            if(!customer.getStatus().equals(CustomerStatus.ACTIVE.getCode())) // customer not active
+            {
+                response = new CustomResponseEntity<>(ResponseCodes.CUSTOMER_INACTIVE.getCode(), ResponseCodes.CUSTOMER_INACTIVE.getValue());
+                return response;
+            }
+
             if(customer.getEmail().equals(loginDto.getEmail()) && customer.getPassword().equals(loginDto.getPassword()))
             {
                 Map<String,Object> data = new HashMap<>();
@@ -497,5 +505,20 @@ public class CustomerServiceImpl implements CustomerService
                         message + "] due to : " + ex.getMessage());
             }
         });
+    }
+
+    public boolean setCustomerStatus(String email, String mobileNumber)
+    {
+        Customer customer = findByEmailAddress(email);
+        if(customer != null)
+        {
+            customer.setStatus(CustomerStatus.ACTIVE.getCode());
+            save(customer);
+            LOGGER.info("Customer with [{}] Status has been updated successfully", email);
+            return true;
+        }
+
+        LOGGER.error("No Customer found to update the status");
+        return false;
     }
 }
