@@ -3,6 +3,7 @@ package com.iconsult.userservice.service.Impl;
 import com.iconsult.userservice.Util.Util;
 import com.iconsult.userservice.enums.CustomerStatus;
 import com.iconsult.userservice.enums.ResponseCodes;
+import com.iconsult.userservice.enums.SMSCategory;
 import com.iconsult.userservice.exception.ServiceException;
 import com.iconsult.userservice.model.dto.request.*;
 import com.iconsult.userservice.model.dto.response.AccountDto;
@@ -143,7 +144,7 @@ public class CustomerServiceImpl implements CustomerService
 
         LOGGER.info("Customer has been saved with Id {}", customer.getId());
 
-        if(!otpLogImpl.createandSendOTP(new OTPDto(customerDto.getMobileNumber(), customerDto.getEmail()))) // sending OTP after register
+        if(!otpLogImpl.createandSendOTP(new OTPDto(customerDto.getMobileNumber(), customerDto.getEmail(), SMSCategory.VERIFY_MOBILE_DEVICE.getValue()))) // sending OTP after register
         {
             LOGGER.error("Failed to create & Send OTP for Mobile [" + customerDto.getMobileNumber() + "], rejecting...");
             throw new ServiceException("SMS Gateway Down");
