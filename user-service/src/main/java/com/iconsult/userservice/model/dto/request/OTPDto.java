@@ -24,8 +24,9 @@ public class OTPDto {
     private String otp;
     private String reason;
 
-    public OTPDto(String mobileNumber, String email) {
+    public OTPDto(String mobileNumber, String email, String reason) {
         this.mobileNumber = mobileNumber;
         this.email = email;
+        this.reason = reason;
     }
 }
