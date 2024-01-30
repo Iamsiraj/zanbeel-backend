@@ -115,7 +115,7 @@ public class OTPLogImpl implements OTPLogSerivce {
                     }
                     else
                     {
-                        LOGGER.info("OTP does been match for customer [{}], replying...", verifyOTPDto.getMobileNumber());
+                        LOGGER.info("OTP does not match for customer [{}], replying...", verifyOTPDto.getMobileNumber());
                         response = new CustomResponseEntity<>(1013, "incorrect otp");
                         return response;
                     }

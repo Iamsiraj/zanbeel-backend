@@ -162,7 +162,7 @@ public class CustomerServiceImpl implements CustomerService
     @Override
     public CustomResponseEntity login(LoginDto loginDto)
     {
-        Customer customer = customerRepository.findByEmail(loginDto.getEmail());
+        Customer customer = customerRepository.findByEmailOrUserName(loginDto.getEmailorUsername());
 
         if(customer != null)
         {
@@ -172,7 +172,7 @@ public class CustomerServiceImpl implements CustomerService
                 return response;
             }
 
-            if(customer.getEmail().equals(loginDto.getEmail()) && customer.getPassword().equals(loginDto.getPassword()))
+            if(customer.getPassword().equals(loginDto.getPassword()) && customer.getSecurityPicture().equals(loginDto.getSecurityImage()))
             {
                 Map<String,Object> data = new HashMap<>();
                 data.put("customerId", customer.getId());
@@ -181,7 +181,7 @@ public class CustomerServiceImpl implements CustomerService
             }
             else
             {
-                throw new ServiceException("Invalid Email or Password");
+                throw new ServiceException("Invalid Password or Security Image");
             }
         }
 
