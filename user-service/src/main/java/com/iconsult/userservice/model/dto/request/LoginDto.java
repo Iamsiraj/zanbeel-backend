@@ -9,9 +9,11 @@ import lombok.Setter;
 @Setter
 public class LoginDto {
 
-    @NotEmpty(message = "Email is mandatory")
-    @Email
-    private String email;
+    @NotEmpty(message = "Email/Username is mandatory")
+    private String emailorUsername;
     @NotEmpty(message = "Password is mandatory")
     private String password;
+
+    @NotEmpty(message = "Security Image is mandatory")
+    private String securityImage;
 }
