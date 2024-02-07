@@ -14,6 +14,5 @@ public class LoginDto {
     @NotEmpty(message = "Password is mandatory")
     private String password;
 
-    @NotEmpty(message = "Security Image is mandatory")
     private String securityImage;
 }

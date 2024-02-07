@@ -172,7 +172,8 @@ public class CustomerServiceImpl implements CustomerService
                 return response;
             }
 
-            if(customer.getPassword().equals(loginDto.getPassword()) && customer.getSecurityPicture().equals(loginDto.getSecurityImage()))
+            if (customer.getPassword().equals(loginDto.getPassword()) &&
+                    (loginDto.getSecurityImage() == null || customer.getSecurityPicture().equals(loginDto.getSecurityImage())))
             {
                 Map<String,Object> data = new HashMap<>();
                 data.put("customerId", customer.getId());
